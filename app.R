@@ -16,6 +16,7 @@ library(shinythemes)
 library(ggrepel)
 
 
+# Define UI for application that draws a histogram
 ui <- fluidPage(
   theme = shinytheme("flatly"),
   titlePanel("Indicatie voor fototherapie > of < 35 weken"),
@@ -29,13 +30,14 @@ ui <- fluidPage(
                     c("nee" = "nee",
                       "ja" = "ja")),
         textInput("naam", "Naam", value = "naam"),
+        conditionalPanel(condition = "input.prematuur == 'nee'",
         dateInput(
           inputId = 'geboortedag',
           label = 'Geboortedag (yyyy-mm-dd)',
           value = Sys.Date()
         ),
         textInput("geboorteuur", "Geboorteuur", value = "00:00"),
-      ),
+      )),
       tabPanel(
         "Aterm - Tijdspunt 1",
         conditionalPanel(
@@ -170,7 +172,7 @@ ui <- fluidPage(
         tableOutput("time_output1"),
         hr(),
         p(
-          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions, e-mail ruben.vanpaemel@ugent.be. Source: Maisels MJ, Bhutani VK, Bogen D, Newman TB, Stark AR, Watchko JF. Hyperbilirubinemia in the newborn infant > or =35 weeks' gestation: an update with clarifications. Pediatrics. 2009;124(4):1193-1198. doi:10.1542/peds.2009-0329. The graph was digitised with WebPlotDigitizer: https://automeris.io/WebPlotDigitizer/."
+          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions, e-mail ruben.vanpaemel@ugent.be. Source: Maisels MJ, Bhutani VK, Bogen D, Newman TB, Stark AR, Watchko JF. Hyperbilirubinemia in the newborn infant > or =35 weeks' gestation: an update with clarifications. Pediatrics. 2009;124(4):1193-1198. doi:10.1542/peds.2009-0329. The graph was digitised with WebPlotDigitizer: https://automeris.io/WebPlotDigitizer/. The code is available at https://github.com/rmvpaeme/bilicurve/tree/main ."
         ),
         hr()
       ),
@@ -417,7 +419,7 @@ server <- function(input, output, session) {
           mutate(PML = calc(PML_GET))
         preterm_df <-
           preterm_df %>% mutate(`postmenstruele leeftijd` = PML_GET,
-                                biliwaarde = biliprem) %>% select(`postmenstruele leeftijd`, biliwaarde)
+                                biliwaarde = biliprem) %>% select(`postmenstruele leeftijd`, biliwaarde) %>% filter(biliwaarde > 0)
       }
     } else {
       if (input$prematuur == "nee") {
@@ -452,7 +454,7 @@ server <- function(input, output, session) {
         
         preterm_df <-
           preterm_df %>% mutate(`postmenstruele leeftijd` = PML,
-                                biliwaarde = biliprem)  %>% select(`postmenstruele leeftijd`, biliwaarde)
+                                biliwaarde = biliprem)  %>% select(`postmenstruele leeftijd`, biliwaarde)  %>% filter(biliwaarde > 0)
       }
     }
     
