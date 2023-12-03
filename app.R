@@ -16,7 +16,6 @@ library(shinythemes)
 library(ggrepel)
 
 
-# Define UI for application that draws a histogram
 ui <- fluidPage(
   theme = shinytheme("flatly"),
   titlePanel("Indicatie voor fototherapie > of < 35 weken"),
