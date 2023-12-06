@@ -28,14 +28,22 @@ Examples:
 
 ## Installation 
 
-Installation of the shiny application is possible through Docker:
+The application can be reached at rubenvp.shinyapps.io/bilicurve or can be self-hosted.
+
+Selfhosting of the shiny application is possible through Docker:
 
 ```bash
 docker run -dp 0.0.0.0:3838:3838  rmvpaeme/bilicurve:0.1
 ```
 
-Shiny server can be accessed at
+After installation, the shiny server can be accessed at
 
 ```
 localhost:3838
+```
+
+or 
+
+```
+server-ip:3838
 ```
