@@ -7,16 +7,14 @@
 #    http://shiny.rstudio.com/
 #
 
-library(ggpubr)
-library(jpeg)
+library(shiny)
 library(tidyverse)
-library(ggimage)
 library(shinyTime)
 library(shinythemes)
 library(ggrepel)
 
 
-# Define UI for application that draws a histogram
+# Define UI
 ui <- fluidPage(
   theme = shinytheme("flatly"),
   titlePanel("Indicatie voor fototherapie > of < 35 weken"),
@@ -29,8 +27,10 @@ ui <- fluidPage(
         selectInput("prematuur", "Prematuur < 35 weken:",
                     c("nee" = "nee",
                       "ja" = "ja")),
-        textInput("naam", "Naam", value = "naam"),
-        conditionalPanel(condition = "input.prematuur == 'nee'",
+        conditionalPanel(condition = "input.geboortedag == '2022-00-00'",
+        textInput("naam", "Naam", value = "naam")
+        ),
+        conditionalPanel(condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
         dateInput(
           inputId = 'geboortedag',
           label = 'Geboortedag (yyyy-mm-dd)',
@@ -41,7 +41,7 @@ ui <- fluidPage(
       tabPanel(
         "Aterm - Tijdspunt 1",
         conditionalPanel(
-          condition = "input.prematuur == 'nee'",
+          condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
           dateInput(
             inputId = 'afnamedag1',
             label = 'Afnamedag (yyyy-mm-dd)',
@@ -55,12 +55,16 @@ ui <- fluidPage(
             min = 0,
             max = 100
           ),
-        )
+        ),
+        conditionalPanel(
+          condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
+          h4("Error:"),
+          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")),
       ),
       tabPanel(
         "Aterm - Tijdspunt 2",
         conditionalPanel(
-          condition = "input.prematuur == 'nee'",
+          condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
           dateInput(
             inputId = 'afnamedag2',
             label = 'Afnamedag: ',
@@ -74,12 +78,16 @@ ui <- fluidPage(
             min = 0,
             max = 100
           ),
-        )
+        ), 
+        conditionalPanel(
+          condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
+          h4("Error:"),
+          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")),
       ),
       tabPanel(
         "Aterm - Tijdspunt 3",
         conditionalPanel(
-          condition = "input.prematuur == 'nee'",
+          condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
           dateInput(
             inputId = 'afnamedag3',
             label = 'Afnamedag: ',
@@ -94,12 +102,16 @@ ui <- fluidPage(
             min = 0,
             max = 100
           ),
-        )
+        ),
+        conditionalPanel(
+          condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
+          h4("Error:"),
+          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")),
       ),
       tabPanel(
         "Preterm - Tijdspunt 1",
         conditionalPanel(
-          condition = "input.prematuur == 'ja'",
+          condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
           textInput(
             "PML1",
             "PML (voorbeeldformaat = \"23+1/7\", niet 24w1d, 24+1, oid)",
@@ -112,12 +124,16 @@ ui <- fluidPage(
             min = 0,
             max = 100
           ),
-        )
+        ),
+        conditionalPanel(
+          condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
+          h4("Error:"),
+          p("Aterme curve of geavanceerde instellingen geselecteerd.")),
       ),
       tabPanel(
         "Preterm - Tijdspunt 2",
         conditionalPanel(
-          condition = "input.prematuur == 'ja'",
+          condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
           textInput("PML2", "PML (formaat = \"23+1/7\")", value = "23+1/7"),
           numericInput(
             "biliprem2",
@@ -126,12 +142,16 @@ ui <- fluidPage(
             min = 0,
             max = 100
           ),
-        )
+        ), 
+        conditionalPanel(
+          condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
+          h4("Error:"),
+          p("Aterme curve of geavanceerde instellingen geselecteerd.")),
       ),
       tabPanel(
         "Preterm - Tijdspunt 3",
         conditionalPanel(
-          condition = "input.prematuur == 'ja'",
+          condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
           textInput("PML3", "PML (formaat = \"23+1/7\")", value = "23+1/7"),
           numericInput(
             "biliprem3",
@@ -140,7 +160,11 @@ ui <- fluidPage(
             min = 0,
             max = 100
           ),
-        )
+        ), 
+        conditionalPanel(
+          condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
+          h4("Error:"),
+          p("Aterme curve of geavanceerde instellingen geselecteerd.")),
       ),
       tabPanel(
         "Geavanceerd",
@@ -172,7 +196,7 @@ ui <- fluidPage(
         tableOutput("time_output1"),
         hr(),
         p(
-          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions, e-mail ruben.vanpaemel@ugent.be. Source: Maisels MJ, Bhutani VK, Bogen D, Newman TB, Stark AR, Watchko JF. Hyperbilirubinemia in the newborn infant > or =35 weeks' gestation: an update with clarifications. Pediatrics. 2009;124(4):1193-1198. doi:10.1542/peds.2009-0329. The graph was digitised with WebPlotDigitizer: https://automeris.io/WebPlotDigitizer/. The code is available at https://github.com/rmvpaeme/bilicurve/tree/main ."
+          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions, e-mail ruben.vanpaemel@ugent.be. Source: Maisels MJ, Bhutani VK, Bogen D, Newman TB, Stark AR, Watchko JF. Hyperbilirubinemia in the newborn infant > or =35 weeks' gestation: an update with clarifications. Pediatrics. 2009;124(4):1193-1198. doi:10.1542/peds.2009-032 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. The graph was digitised with WebPlotDigitizer: https://automeris.io/WebPlotDigitizer/. The code is available at https://github.com/rmvpaeme/bilicurve/tree/main ."
         ),
         hr()
       ),
@@ -185,7 +209,7 @@ ui <- fluidPage(
         )
       ),
       tabPanel(
-        "Documentation",
+        "Usage",
         p(
           "Values can be entered through the interface or through a GET request. Examples are"
         ),
@@ -395,15 +419,18 @@ server <- function(input, output, session) {
           )
         df_GET$diff_hours <-
           as.character(difftime(df_GET$afname, df_GET$geboorte, units = "hours"))
+        df_GET$diff_days <-
+          as.character(difftime(df_GET$afname, df_GET$geboorte, units = "days"))
         df2 <-
           df_GET %>% mutate(
             afnamemoment =  as.character(
               as.POSIXct(afname_GET_POSIX, origin = "1970-01-01", tz = "UTC")
             ) ,
             `tijd in uren` = as.double(diff_hours),
+            `tijd in dagen` = as.double(diff_days),
             biliwaarde = as.double(bili),
             annotation = "sample"
-          ) %>% select(afnamemoment, `tijd in uren`, biliwaarde, annotation)
+          )  %>% filter(`tijd in dagen` < 10)  %>% select(afnamemoment, `tijd in uren`, `tijd in dagen`, biliwaarde, annotation)
         df2
       } else {
         df2 <- tibble(time_HR = NA,
@@ -617,7 +644,7 @@ server <- function(input, output, session) {
           legend.position = "bottom",
           legend.box = "horizontal",
           legend.title = element_blank()
-        ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7)) +
+        ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7), limits = c(0,7.1)) +
         geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated))
       g + guides(color = guide_legend(nrow = 4))
     } else{
