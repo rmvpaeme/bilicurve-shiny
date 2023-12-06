@@ -1,4 +1,4 @@
-# bilicurve-shiny
+# Bilirubin chart - shiny application
 
 ## Bilirubin chart for term infants (> 35 weeks)
 Enter
@@ -16,3 +16,17 @@ Enter
    
 ## Advanced usage
 Manual input allows three timepoints. However, unlimited time points can be entered through the advanced panel. If values are entered in advanced mode, all values from manual mode are overridden.
+
+## Installation 
+
+Installation is possible through Docker:
+
+```bash
+docker run -dp 0.0.0.0:3838:3838  rmvpaeme/bilicurve:0.1
+```
+
+Shiny server can be accessed at
+
+```
+localhost:3838
+```
