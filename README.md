@@ -1,5 +1,7 @@
 # Bilirubin chart - shiny application
 
+The graph depends on the gestational age (> or < 35 weeks):
+
 ## Bilirubin chart for term infants (> 35 weeks)
 Enter
 1. Date and hour of birth
@@ -19,7 +21,7 @@ Manual input allows three timepoints. However, unlimited time points can be ente
 
 ## Installation 
 
-Installation is possible through Docker:
+Installation of the shiny application is possible through Docker:
 
 ```bash
 docker run -dp 0.0.0.0:3838:3838  rmvpaeme/bilicurve:0.1
