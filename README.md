@@ -4,8 +4,8 @@ The graph depends on the gestational age (> or < 35 weeks):
 
 ## Bilirubin chart for term infants (> 35 weeks)
 Enter
-1. Date and hour of birth
-2. Date and hour of sampling
+1. Date and hour of birth (yyyy-mm-dd)
+2. Date and hour of sampling (hh:mm)
 3. Bilirubin value in mg/dL
 
 Values will appear on the graph, with on the latest value the annotated thresholds for low risk, intermediate risk and high risk. 
@@ -17,7 +17,14 @@ Enter
 3. Values will appear on the graph.
    
 ## Advanced usage
-Manual input allows three timepoints. However, unlimited time points can be entered through the advanced panel. If values are entered in advanced mode, all values from manual mode are overridden.
+Manual input allows three timepoints. However, unlimited time points can be entered through the advanced panel and through a HTTP GET request. The input for multiple values is in CSV format. If values are entered in advanced mode (`?advanced=ja`), all values from manual mode are overridden.
+For the preterm chart, only the gestational age (`&PML_GET=23.14,24.15`) and the bilirubin level (`&bili_GET=10,9`) is required.
+For the term chart, the date/hour or birth (`geboorte_GET=2023-11-22%2010:00:00`) + date/hour of sampling (`afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00`) and bilirubin levels (`&bili_GET=10,9`) are required.
+
+Examples:
+- Term: http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9
+- Preterm: http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9
+
 
 ## Installation 
 
