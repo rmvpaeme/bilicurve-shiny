@@ -14,7 +14,8 @@ Values will appear on the graph, with on the latest value the annotated threshol
 Enter
 1. Gestational age in the following format: 23+1/7 (= 23 weeks and 1 day) or directly 23.14284.
 2. Bilirubin value in mg/dL
-3. Values will appear on the graph.
+
+Values will/should appear on the graph.
    
 ## Advanced usage
 Manual input allows three timepoints. However, unlimited time points can be entered through the advanced panel and through a HTTP GET request. The input for multiple values is in CSV format. If values are entered in advanced mode (`?advanced=ja`), all values from manual mode are overridden.
