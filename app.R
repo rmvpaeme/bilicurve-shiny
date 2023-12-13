@@ -7,11 +7,12 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
+
 library(tidyverse)
 library(shinyTime)
 library(shinythemes)
 library(ggrepel)
+library(DT)
 
 
 # Define UI
@@ -28,16 +29,30 @@ ui <- fluidPage(
                     c("nee" = "nee",
                       "ja" = "ja")),
         conditionalPanel(condition = "input.geboortedag == '2022-00-00'",
-        textInput("naam", "Naam", value = "naam")
+                         textInput("naam", "Naam", value = "naam")),
+        conditionalPanel(
+          condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
+          dateInput(
+            inputId = 'geboortedag',
+            label = 'Geboortedag (yyyy-mm-dd)',
+            value = Sys.Date()
+          ),
+          textInput("geboorteuur", "Geboorteuur", value = "00:01"),
+          fileInput(
+            'file_aterm',
+            'Upload eerder opgeslagen tabel voor aterm',
+            accept = c(".xlsx")
+          ),
         ),
-        conditionalPanel(condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
-        dateInput(
-          inputId = 'geboortedag',
-          label = 'Geboortedag (yyyy-mm-dd)',
-          value = Sys.Date()
-        ),
-        textInput("geboorteuur", "Geboorteuur", value = "00:00"),
-      )),
+        conditionalPanel(
+          condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
+          fileInput(
+            'file_preterm',
+            'Upload eerder opgeslagen tabel voor preterm',
+            accept = c(".xlsx")
+          )
+        )
+      ),
       tabPanel(
         "Aterm - Tijdspunt 1",
         conditionalPanel(
@@ -59,7 +74,8 @@ ui <- fluidPage(
         conditionalPanel(
           condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
           h4("Error:"),
-          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")),
+          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")
+        ),
       ),
       tabPanel(
         "Aterm - Tijdspunt 2",
@@ -78,11 +94,12 @@ ui <- fluidPage(
             min = 0,
             max = 100
           ),
-        ), 
+        ),
         conditionalPanel(
           condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
           h4("Error:"),
-          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")),
+          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")
+        ),
       ),
       tabPanel(
         "Aterm - Tijdspunt 3",
@@ -106,7 +123,8 @@ ui <- fluidPage(
         conditionalPanel(
           condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
           h4("Error:"),
-          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")),
+          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")
+        ),
       ),
       tabPanel(
         "Preterm - Tijdspunt 1",
@@ -128,7 +146,8 @@ ui <- fluidPage(
         conditionalPanel(
           condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
           h4("Error:"),
-          p("Aterme curve of geavanceerde instellingen geselecteerd.")),
+          p("Aterme curve of geavanceerde instellingen geselecteerd.")
+        ),
       ),
       tabPanel(
         "Preterm - Tijdspunt 2",
@@ -142,11 +161,12 @@ ui <- fluidPage(
             min = 0,
             max = 100
           ),
-        ), 
+        ),
         conditionalPanel(
           condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
           h4("Error:"),
-          p("Aterme curve of geavanceerde instellingen geselecteerd.")),
+          p("Aterme curve of geavanceerde instellingen geselecteerd.")
+        ),
       ),
       tabPanel(
         "Preterm - Tijdspunt 3",
@@ -160,11 +180,12 @@ ui <- fluidPage(
             min = 0,
             max = 100
           ),
-        ), 
+        ),
         conditionalPanel(
           condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
           h4("Error:"),
-          p("Aterme curve of geavanceerde instellingen geselecteerd.")),
+          p("Aterme curve of geavanceerde instellingen geselecteerd.")
+        ),
       ),
       tabPanel(
         "Geavanceerd",
@@ -180,6 +201,8 @@ ui <- fluidPage(
           textInput("afname_GET", "Afnameuur in CSV", value = NA),
           textInput("PML_GET", "Postmenstruele leeftijd in CSV", value = NA),
           textInput("bili_GET", "Bilirubine in mg/dL in CSV ", value = NA),
+          textInput("PT_start_GET", "Fototherapie start datum+uur in CSV ", value = NA),
+          textInput("PT_stop_GET", "Fototherapie stop datum+uur in CSV ", value = NA),
         )
       ),
     ),
@@ -192,33 +215,45 @@ ui <- fluidPage(
         "Plot",
         plotOutput("bilicurve", height = "550px", width = "700px"),
         hr(),
-        h4("Ingegeven waarden"),
-        tableOutput("time_output1"),
+        #h4("Ingegeven waarden"),
+        DT::dataTableOutput("time_output1"),
         hr(),
         p(
-          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions, e-mail ruben.vanpaemel@ugent.be. Source: Maisels MJ, Bhutani VK, Bogen D, Newman TB, Stark AR, Watchko JF. Hyperbilirubinemia in the newborn infant > or =35 weeks' gestation: an update with clarifications. Pediatrics. 2009;124(4):1193-1198. doi:10.1542/peds.2009-032 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. The graph was digitised with WebPlotDigitizer: https://automeris.io/WebPlotDigitizer/. The code is available at https://github.com/rmvpaeme/bilicurve/tree/main ."
+          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Maisels MJ, Bhutani VK, Bogen D, Newman TB, Stark AR, Watchko JF. Hyperbilirubinemia in the newborn infant > or =35 weeks' gestation: an update with clarifications. Pediatrics. 2009;124(4):1193-1198. doi:10.1542/peds.2009-032 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. The graph was digitised with WebPlotDigitizer: https://automeris.io/WebPlotDigitizer/. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
         ),
         hr()
       ),
       tabPanel(
-        "Original plot",
+        "Original figures",
         img(
           src = 'bilicurve.jpeg',
           width = "100%",
           height = "100%"
+        ),
+        img(
+          src = 'FT.PNG',
+          width = "90%",
+          height = "90%"
         )
       ),
       tabPanel(
         "Usage",
         p(
-          "Values can be entered through the interface or through a GET request. Examples are"
+          "Values can be entered through the interface. The resulting data can be saved by clicking \"Excel\" underneath the table. 
+          Afterwards, the Excel file can be re-uploaded and data can again be added through the interface. 
+          
+          
+          Alternatively (advanced usage) data can be provided through a GET request, which ignores all other input. Examples are"
         ),
         a(
-          "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9"
+          " - http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9", 
+          href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9"
         ),
         br(),
+        br(),
         a(
-          "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9"
+          "- http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9",
+          href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9"
         )
       )
     )
@@ -226,13 +261,99 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
+  # format text to yyy-mm-dd hh:mm:ss
+  vals <- reactiveValues()
   
+  
+  observe({
+    inFile <- input$file_aterm
+    if (is.null(inFile)) {
+      testdatetime <- paste(input$geboortedag, input$geboorteuur)
+      testdatetime <-
+        as.POSIXct(testdatetime, format = "%Y-%m-%d %H:%M", tz = "UTC")
+      vals$initial_date <- testdatetime
+    }
+    else {
+      df_datetime <- readxl::read_excel(inFile$datapath, skip = 1)
+      vals$initial_date <-
+        df_datetime %>% pull(geboorte) %>% first()
+      updateDateInput(session, "geboortedag", value = vals$initial_date)
+      updateTextInput(session, "geboorteuur", value = strsplit(vals$initial_date, " ")[[1]][2])
+    }
+    
+  })
+  
+  observe({
+    testdatetime2 <- paste(input$afnamedag1, input$afnameuur1)
+    testdatetime2 <-
+      as.POSIXct(testdatetime2, format = "%Y-%m-%d %H:%M", tz = "UTC")
+    vals$to_date1 <- testdatetime2
+  })
+  
+  observe({
+    testdatetime3 <- paste(input$afnamedag2, input$afnameuur2)
+    testdatetime3 <-
+      as.POSIXct(testdatetime3, format = "%Y-%m-%d %H:%M", tz = "UTC")
+    vals$to_date2 <- testdatetime3
+  })
+  
+  observe({
+    testdatetime4 <- paste(input$afnamedag3, input$afnameuur3)
+    testdatetime4 <-
+      as.POSIXct(testdatetime4, format = "%Y-%m-%d %H:%M", tz = "UTC")
+    vals$to_date3 <- testdatetime4
+    test4 <- inherits(testdatetime4, "POSIXct")
+    print(test4)
+  })
+  
+  # placeholder code to expand the manual input to 7 points
+  observe({
+    testdatetime5 <- paste(input$afnamedag4, input$afnameuur4)
+    testdatetime5 <-
+      as.POSIXct(testdatetime5, format = "%Y-%m-%d %H:%M", tz = "UTC")
+    vals$to_date4 <- testdatetime5
+  })
+  
+  
+  observe({
+    testdatetime6 <- paste(input$afnamedag5, input$afnameuur5)
+    testdatetime6 <-
+      as.POSIXct(testdatetime6, format = "%Y-%m-%d %H:%M", tz = "UTC")
+    vals$to_date5 <- testdatetime6
+  })
+  
+  observe({
+    testdatetime7 <- paste(input$afnamedag6, input$afnameuur6)
+    testdatetime7 <-
+      as.POSIXct(testdatetime7, format = "%Y-%m-%d %H:%M", tz = "UTC")
+    vals$to_date6 <- testdatetime7
+  })
+  
+  observe({
+    testdatetime8 <- paste(input$afnamedag7, input$afnameuur7)
+    testdatetime8 <-
+      as.POSIXct(testdatetime8, format = "%Y-%m-%d %H:%M", tz = "UTC")
+    vals$to_date7 <- testdatetime8
+  })
+  
+  observe({
+    vals$bilirubin  <- as.double(input$bili1)
+    vals$bilirubin2  <- as.double(input$bili2)
+    vals$bilirubin3  <- as.double(input$bili3)
+    vals$bilirubin4  <- as.double(input$bili4)
+    vals$bilirubin5  <- as.double(input$bili5)
+    vals$bilirubin6  <- as.double(input$bili6)
+    vals$bilirubin7  <- as.double(input$bili7)
+  })
   # format e.g. 23+1/7 to 23.14
   calc <- function(x)
     eval(parse(text = x))
   
-  # parse GET request
-  observe({
+  newData <- reactive({
+
+    
+    
+    # parse GET request
     query <- parseQueryString(session$clientData$url_search)
     if (!is.null(query[['naam']])) {
       updateTextInput(session, "naam", value = query[['naam']])
@@ -282,220 +403,10 @@ server <- function(input, output, session) {
     if (!is.null(query[['PML_GET']])) {
       updateTextInput(session, "PML_GET", value = query[['PML_GET']])
     }
-  })
-  
-  # format text to yyy-mm-dd hh:mm:ss
-  vals <- reactiveValues()
-  
-  observe({
-    testdatetime <- paste(input$geboortedag, input$geboorteuur)
-    testdatetime <-
-      as.POSIXct(testdatetime, format = "%Y-%m-%d %H:%M", tz = "UTC")
-    vals$initial_date <- testdatetime
-  })
-  
-  observe({
-    testdatetime2 <- paste(input$afnamedag1, input$afnameuur1)
-    testdatetime2 <-
-      as.POSIXct(testdatetime2, format = "%Y-%m-%d %H:%M", tz = "UTC")
-    vals$to_date1 <- testdatetime2
-  })
-  
-  observe({
-    testdatetime3 <- paste(input$afnamedag2, input$afnameuur2)
-    testdatetime3 <-
-      as.POSIXct(testdatetime3, format = "%Y-%m-%d %H:%M", tz = "UTC")
-    vals$to_date2 <- testdatetime3
-  })
-  
-  observe({
-    testdatetime4 <- paste(input$afnamedag3, input$afnameuur3)
-    testdatetime4 <-
-      as.POSIXct(testdatetime4, format = "%Y-%m-%d %H:%M", tz = "UTC")
-    vals$to_date3 <- testdatetime4
-    test4 <- inherits(testdatetime4, "POSIXct")
-    print(test4)
-  })
-  
-  # placeholder code to expand the manual input to 7 points
-  observe({
-   testdatetime5 <- paste(input$afnamedag4, input$afnameuur4)
-   testdatetime5 <-
-     as.POSIXct(testdatetime5, format = "%Y-%m-%d %H:%M", tz = "UTC")
-   vals$to_date4 <- testdatetime5
-  })
-  
-  
-  observe({
-    testdatetime6 <- paste(input$afnamedag5, input$afnameuur5)
-    testdatetime6 <-
-      as.POSIXct(testdatetime6, format = "%Y-%m-%d %H:%M", tz = "UTC")
-    vals$to_date5 <- testdatetime6
-  })
-
-  observe({
-    testdatetime7 <- paste(input$afnamedag6, input$afnameuur6)
-    testdatetime7 <-
-      as.POSIXct(testdatetime7, format = "%Y-%m-%d %H:%M", tz = "UTC")
-    vals$to_date6 <- testdatetime7
-  })
-
-  observe({
-    testdatetime8 <- paste(input$afnamedag7, input$afnameuur7)
-    testdatetime8 <-
-      as.POSIXct(testdatetime8, format = "%Y-%m-%d %H:%M", tz = "UTC")
-    vals$to_date7 <- testdatetime8
-  })
-
-  observe({
-    vals$bilirubin  <- as.double(input$bili1)
-    vals$bilirubin2  <- as.double(input$bili2)
-    vals$bilirubin3  <- as.double(input$bili3)
-    vals$bilirubin4  <- as.double(input$bili4)
-    vals$bilirubin5  <- as.double(input$bili5)
-    vals$bilirubin6  <- as.double(input$bili6)
-    vals$bilirubin7  <- as.double(input$bili7)
-  })
-  
-  output$time_output1 <- renderTable({
-    
-    # difference between dob and date of sample in hours
-    value <- as.character(vals$initial_date)
-    value1 <-
-      as.character(difftime(vals$to_date1, vals$initial_date, units = "hours"))
-    value2 <-
-      as.character(difftime(vals$to_date2, vals$initial_date, units = "hours"))
-    value3 <-
-      as.character(difftime(vals$to_date3, vals$initial_date, units = "hours"))
-    value4 <-
-      as.character(difftime(vals$to_date4, vals$initial_date, units = "hours"))
-    value5 <-
-      as.character(difftime(vals$to_date5, vals$initial_date, units = "hours"))
-    value6 <-
-      as.character(difftime(vals$to_date6, vals$initial_date, units = "hours"))
-    value7 <-
-      as.character(difftime(vals$to_date7, vals$initial_date, units = "hours"))
-
-    bili1 <- vals$bilirubin
-    bili2 <- vals$bilirubin2
-    bili3 <- vals$bilirubin3
-    bili4 <- vals$bilirubin4
-    bili5 <- vals$bilirubin5
-    bili6 <- vals$bilirubin6
-    bili7 <- vals$bilirubin7
-    
-    if (nchar(value) == nchar(as.character(Sys.Date()))) {
-      value <- paste(value, "00:00:00 ")
+    if (!is.null(query[['PT_start_GET']])) {
+      updateTextInput(session, "PT_start_GET", value = query[['PT_start_GET']])
     }
     
-    # advanced is to parse all values through GET requests instead of the UI. Splits at , and changes all strings to dates or numbers
-    # the code below can benefit from reworking to a reactive dataframe and reuse that dataframe during plot generation but for now it works
-    if (input$advanced == "ja") {
-      #testvalues
-      #geboorte_GET <- c("2023-11-22T10:00:00")
-      #afname_GET <- c("2023-11-23T10:00:00;2023-11-24T10:00:00")
-      #bili_GET <- c("10,9")
-      #PML_GET <- c("23+1/7,24+1/7")
-      
-      geboorte_GET <- as.character(input$geboorte_GET)
-      afname_GET <- as.character(input$afname_GET)
-      bili_GET <- as.character(input$bili_GET)
-      PML_GET <- as.character(input$PML_GET)
-      annotation <- "sample"
-      
-      if (input$prematuur == "nee") {
-        geboorte_GET_POSIX <-
-          as.POSIXct(unlist(strsplit(geboorte_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
-        afname_GET_POSIX <-
-          as.POSIXct(unlist(strsplit(afname_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
-        bili_GET_split <-
-          as.numeric(unlist(strsplit(bili_GET, split = ",")))
-        df_GET <-
-          tibble(
-            geboorte = geboorte_GET_POSIX,
-            afname = afname_GET_POSIX,
-            bili = bili_GET_split,
-            annotation = annotation
-          )
-        df_GET$diff_hours <-
-          as.character(difftime(df_GET$afname, df_GET$geboorte, units = "hours"))
-        df_GET$diff_days <-
-          as.character(difftime(df_GET$afname, df_GET$geboorte, units = "days"))
-        df2 <-
-          df_GET %>% mutate(
-            afnamemoment =  as.character(
-              as.POSIXct(afname_GET_POSIX, origin = "1970-01-01", tz = "UTC")
-            ) ,
-            `tijd in uren` = as.double(diff_hours),
-            `tijd in dagen` = as.double(diff_days),
-            biliwaarde = as.double(bili),
-            annotation = "sample"
-          )  %>% filter(`tijd in dagen` < 10)  %>% select(afnamemoment, `tijd in uren`, `tijd in dagen`, biliwaarde, annotation)
-        df2
-      } else {
-        df2 <- tibble(time_HR = NA,
-                      value = NA,
-                      annotation = "sample")
-        bili_GET_split <-
-          as.numeric(unlist(strsplit(bili_GET, split = ",")))
-        PML_GET <-
-          as.character(unlist(strsplit(PML_GET, split = ",")))
-        preterm_df <- tibble(PML_GET = PML_GET,
-                             biliprem = bili_GET_split)
-        preterm_df <- preterm_df %>% rowwise() %>%
-          mutate(PML = calc(PML_GET))
-        preterm_df <-
-          preterm_df %>% mutate(`postmenstruele leeftijd` = PML_GET,
-                                biliwaarde = biliprem) %>% select(`postmenstruele leeftijd`, biliwaarde) %>% filter(biliwaarde > 0)
-      }
-    } else {
-      if (input$prematuur == "nee") {
-        df2 <-
-          tibble(
-            afnamemoment = c(
-              vals$to_date1,
-              vals$to_date2,
-              vals$to_date3,
-              vals$to_date4,
-              vals$to_date5,
-              vals$to_date6,
-              vals$to_date7
-            ),
-            `tijd in uren` = c(value1, value2, value3, value4, value5, value6, value7),
-            biliwaarde = c(bili1, bili2, bili3, bili4, bili5, bili6, bili7),
-            annotation = "sample"
-          )
-        df2 <-
-          df2 %>% mutate(afnamemoment = as.character(
-            as.POSIXct(afnamemoment, origin = "1970-01-01", tz = "UTC")
-          ))
-        df2 %>% select(afnamemoment, `tijd in uren`, biliwaarde) %>% filter(biliwaarde >
-                                                                              0) %>% arrange(`tijd in uren`)
-      } else {
-        preterm_df <-
-          tibble(
-            PML = c(calc(input$PML1), calc(input$PML2), calc(input$PML3)),
-            PML_raw = c((input$PML1), (input$PML2), (input$PML3)),
-            biliprem = c(input$biliprem1, input$biliprem2, input$biliprem3)
-          )
-        
-        preterm_df <-
-          preterm_df %>% mutate(`postmenstruele leeftijd` = PML,
-                                biliwaarde = biliprem)  %>% select(`postmenstruele leeftijd`, biliwaarde)  %>% filter(biliwaarde > 0)
-      }
-    }
-    
-  })
-  
-  
-  
-  output$bilicurve <- renderPlot({
-    # This is more or less the same code as above to render the table, this can be made more efficient with a reactive dataframe
-    preterm_df <-
-      tibble(
-        PML = c(calc(input$PML1), calc(input$PML2), calc(input$PML3)),
-        biliprem = c(input$biliprem1, input$biliprem2, input$biliprem3)
-      )
     
     name <- as.character(input$naam)
     value <- as.character(vals$initial_date)
@@ -527,14 +438,16 @@ server <- function(input, output, session) {
     }
     
     if (input$advanced == "ja") {
-      #geboorte_GET <- c("2023-11-22T10:00:00")
+      #geboorte_GET <- c("2023-11-22 10:00:00")
       geboorte_GET <- as.character(input$geboorte_GET)
-      #afname_GET <- c("2023-11-23T10:00:00;2023-11-24T10:00:00")
+      #afname_GET <- c("2023-11-23 10:00:00,2023-11-24 10:00:00")
       afname_GET <- as.character(input$afname_GET)
       #bili_GET <- c("10,9")
       bili_GET <- as.character(input$bili_GET)
       #PML_GET <- c("23+1/7,24+1/7")
       PML_GET <- as.character(input$PML_GET)
+      #PT_start_GET <- c("2023-11-23 11:00:00,2023-11-24 12:00:00")
+      #PT_stop_GET <- c("2023-11-23 11:10:00,2023-11-24 12:20:00")
       annotation <- "sample"
       
       if (input$prematuur == "nee") {
@@ -542,6 +455,12 @@ server <- function(input, output, session) {
           as.POSIXct(unlist(strsplit(geboorte_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
         afname_GET_POSIX <-
           as.POSIXct(unlist(strsplit(afname_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
+        #PT_start_GET_POSIX <-
+        #  as.POSIXct(unlist(strsplit(PT_start_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
+        #PT_stop_GET_POSIX <-
+        #  as.POSIXct(unlist(strsplit(PT_stop_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
+        
+        
         bili_GET_split <-
           as.numeric(unlist(strsplit(bili_GET, split = ",")))
         df_GET <-
@@ -549,13 +468,33 @@ server <- function(input, output, session) {
             geboorte = geboorte_GET_POSIX,
             afname = afname_GET_POSIX,
             bili = bili_GET_split,
-            annotation = annotation
+            annotation = annotation,
+            #PT_start = PT_start_GET_POSIX,
+            #PT_stop = PT_stop_GET_POSIX
           )
         df_GET$diff_hours <-
+          as.character(difftime(df_GET$afname, df_GET$geboorte, units = "hours"))
+        df_GET$diff_days <-
           as.character(difftime(df_GET$afname, df_GET$geboorte, units = "days"))
         df2 <-
-          df_GET %>% mutate(time_HR = as.double(diff_hours),
-                            value = as.double(bili)) %>% select(time_HR, value, annotation)
+          df_GET %>% mutate(
+            geboorte =  as.character(
+              as.POSIXct(geboorte_GET_POSIX, origin = "1970-01-01", tz = "UTC")
+            ) ,
+            afnamemoment =  as.character(
+              as.POSIXct(afname_GET_POSIX, origin = "1970-01-01", tz = "UTC")
+            ) ,
+            `tijd in uren` = as.double(diff_hours),
+            `tijd in dagen` = as.double(diff_days),
+            biliwaarde = as.double(bili),
+            annotation = "sample"
+          )  %>% filter(`tijd in dagen` < 10)  %>% select(geboorte,
+                                                          afnamemoment,
+                                                          `tijd in uren`,
+                                                          `tijd in dagen`,
+                                                          biliwaarde,
+                                                          annotation)
+        df2
       } else {
         df2 <- tibble(time_HR = NA,
                       value = NA,
@@ -568,64 +507,173 @@ server <- function(input, output, session) {
                              biliprem = bili_GET_split)
         preterm_df <- preterm_df %>% rowwise() %>%
           mutate(PML = calc(PML_GET))
+        preterm_df <-
+          preterm_df %>% mutate(`postmenstruele leeftijd` = PML,
+                                biliwaarde = biliprem) %>% select(`postmenstruele leeftijd`, biliwaarde) %>% filter(biliwaarde > 0)
+        
       }
-    } else {
+    } else if (input$prematuur == "nee") {
       df2 <-
         tibble(
-          time_HR = as.double(c(
+          geboorte = as.character(as.POSIXct(
+            c(vals$initial_date), origin = "1970-01-01", tz = "UTC"
+          )),
+          afnamemoment = as.character(as.POSIXct(
+            c(
+              vals$to_date1,
+              vals$to_date2,
+              vals$to_date3,
+              vals$to_date4,
+              vals$to_date5,
+              vals$to_date6,
+              vals$to_date7
+            ),
+            origin = "1970-01-01",
+            tz = "UTC"
+          )),
+          `tijd in dagen` = as.double(c(
             value1, value2, value3, value4, value5, value6, value7
           )),
-          value = as.double(c(
+          `tijd in uren` = as.double(c(
+            value1, value2, value3, value4, value5, value6, value7
+          )) * 24,
+          biliwaarde = as.double(c(
             bili1, bili2, bili3, bili4, bili5, bili6, bili7
           )),
           annotation = "sample"
         )
-      df2
+      
+    }
+    else if (input$prematuur == "ja") {
+      preterm_df <-
+        tibble(
+          `postmenstruele leeftijd` = c(calc(input$PML1), calc(input$PML2), calc(input$PML3)),
+          biliwaarde = c(input$biliprem1, input$biliprem2, input$biliprem3)
+        )
+    }
+  })
+  
+  output$time_output1 <- DT::renderDataTable({
+    inFile_aterm <- input$file_aterm
+    inFile_preterm <- input$file_preterm
+    if (is.null(inFile_aterm) && is.null(inFile_preterm)) {
+      df <- newData()
+    }
+    else {
+      if (!is.null(inFile_aterm) && input$prematuur == "nee") {
+        df <- readxl::read_excel(inFile_aterm$datapath, skip = 1)
+        df <- bind_rows(df, newData())
+      }
+      else if (!is.null(inFile_preterm) &&
+               input$prematuur == "ja") {
+        df <- readxl::read_excel(inFile_preterm$datapath, skip = 1)
+        df <- bind_rows(df, newData())
+      }
     }
     
-    # read the dataframe that wil be used for plotting LR, MR, HR
-    df <-
-      read_csv(
-        "bilidf.csv",
-        col_names = c(
-          "time_HR",
-          "infants at higher risk (35-37 6/7 wk + risk factors)",
-          "time_MR",
-          "infants at medium risk (>=38 wk + risk factors or 35-37 6/7 wk and well)",
-          "time_LR",
-          "infants at lower risk (>=38 wk and well)"
-        ),
-        skip = 2
-      )
-    df <-
-      df %>% tidyr::gather(key = "annotation",
-                           value = "value",
-                           -c(time_HR, time_MR, time_LR))
-    df <- df %>% select(-c(time_LR, time_MR))
-    df <- bind_rows(df, df2)
+    df <- df %>% filter(biliwaarde > 0)
+    df <- df %>% mutate_if(is.numeric, ~ round(., 2))
+    DT::datatable({
+      df
+    },
     
-    # extract the most recent entered value to annotate the corresponding thresholds for LR, MR and HR on the plot
-    x_seq = df2 %>% filter(value > 0) %>% pull(time_HR)
+    extensions = 'Buttons',
     
-    intersections <- df %>% filter(annotation != "sample") %>%
-      group_by(annotation) %>%
-      dplyr::reframe(interpolated = approx(x = time_HR, y = value, xout = x_seq)$y) %>%
-      mutate(x_seq = rep(x_seq, 3)) %>%
-      arrange(annotation, x_seq) %>%
-      group_by(annotation) %>%
-      summarise(across(everything(), last)) %>% mutate(interpolated = round(interpolated, 1))
+    options = list(
+      paging = TRUE,
+      searching = TRUE,
+      fixedColumns = TRUE,
+      autoWidth = TRUE,
+      ordering = TRUE,
+      dom = 'tB',
+      buttons = c('copy', 'excel')
+    ),
+    rownames = FALSE,
     
-    last_intersect <- intersections %>% pull(x_seq) %>% unique()
+    class = "display")
+    
+    #testvalues
+    #geboorte_GET <- c("2023-11-22T10:00:00")
+    #afname_GET <- c("2023-11-23T10:00:00;2023-11-24T10:00:00")
+    #bili_GET <- c("10,9")
+    #PML_GET <- c("23+1/7,24+1/7")
+    
+    
+  })
+  
+  
+  
+  output$bilicurve <- renderPlot({
+    if (input$prematuur == "nee") {
+      inFile <- input$file_aterm
+      if (is.null(inFile)) {
+        df2 <- newData()
+      }
+      else {
+        df2 <- readxl::read_excel(inFile$datapath, skip = 1)
+        df2 <- bind_rows(df2, newData())
+      }
+      
+      # read the dataframe that wil be used for plotting LR, MR, HR
+      df <-
+        read_csv(
+          "bilidf.csv",
+          col_names = c(
+            "time_HR",
+            "infants at higher risk (35-37 6/7 wk + risk factors)",
+            "time_MR",
+            "infants at medium risk (>=38 wk + risk factors or 35-37 6/7 wk and well)",
+            "time_LR",
+            "infants at lower risk (>=38 wk and well)"
+          ),
+          skip = 2
+        )
+      df <-
+        df %>% tidyr::gather(key = "annotation",
+                             value = "value",-c(time_HR, time_MR, time_LR))
+      df <- df %>% select(-c(time_LR, time_MR))
+      df <-
+        df %>% mutate(`tijd in dagen` = time_HR, biliwaarde = value) %>% select(-c(time_HR, value))
+      df <- bind_rows(df, df2)
+      
+      # extract the most recent entered value to annotate the corresponding thresholds for LR, MR and HR on the plot
+      x_seq = df2 %>% filter(biliwaarde > 0) %>% pull(`tijd in dagen`)
+      
+      intersections <- df %>% filter(annotation != "sample") %>%
+        group_by(annotation) %>%
+        dplyr::reframe(interpolated = approx(x = `tijd in dagen`, y = biliwaarde, xout = x_seq)$y) %>%
+        mutate(x_seq = rep(x_seq, 3)) %>%
+        arrange(annotation, x_seq) %>%
+        group_by(annotation) %>%
+        summarise(across(everything(), last)) %>% mutate(interpolated = round(interpolated, 1))
+      
+      last_intersect <- intersections %>% pull(x_seq) %>% unique()
+    }
+    
+    else if (input$prematuur == "ja") {
+      inFile <- input$file_preterm
+      if (is.null(inFile)) {
+        preterm_df <- newData()
+      }
+      else {
+        preterm_df <- readxl::read_excel(inFile$datapath, skip = 1)
+        preterm_df <- bind_rows(preterm_df, newData())
+      }
+      
+    }
+    
+    
     
     if (input$prematuur == "nee") {
       g <-
-        ggplot(df, aes(y = value, x = time_HR, col = annotation)) +  geom_vline(
+        ggplot(df, aes(y = biliwaarde, x = `tijd in dagen`, col = annotation)) +  geom_vline(
           xintercept = last_intersect,
           color = "black",
           linetype = "dashed",
           alpha = 0.3
         ) + geom_text_repel(
           data = intersections,
+          show.legend = FALSE,
           size = 5,
           aes(x_seq, interpolated, label = round(interpolated, 2)),
           min.segment.length = 0,
@@ -635,21 +683,35 @@ server <- function(input, output, session) {
         )  +
         geom_line(data = df %>% filter(annotation != "sample"))  + theme_bw() + xlim(0, 7) + ylim(0, 25) + xlab("age in days") + ylab("TSB, mg/dL") +
         geom_point(
-          data = df %>% filter(annotation == "sample", value > 0),
-          aes(y = value, x = time_HR, col = annotation),
+          data = df %>% filter(annotation == "sample", biliwaarde > 0),
+          aes(y = biliwaarde, x = `tijd in dagen`, col = annotation),
           size = 3
-        ) +
-        labs(subtitle = paste0(name, " °", value)) + theme(
+        ) + theme(
           text = element_text(size = 20),
           legend.position = "bottom",
           legend.box = "horizontal",
           legend.title = element_blank()
-        ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7), limits = c(0,7.1)) +
-        geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated))
+        ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7),
+                               limits = c(0, 7.1)) +
+        geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated))#+
+      # annotate(geom = "vline",
+      #          x = c(as.numeric(df_GET$diff_hours_PT_start)),
+      #          xintercept = c(as.numeric(df_GET$diff_hours_PT_start)),
+      #          linetype = c("dotdash"), color = "orange") +
+      # annotate(geom = "text",
+      #          label = c(as.character("FT start")),
+      #          x = c(as.numeric(df_GET$diff_hours_PT_start)),
+      #          y = c(23),
+      #          angle = 90,
+      #          vjust = 0, color = "orange")
+      #
+      
       g + guides(color = guide_legend(nrow = 4))
     } else{
-      ggplot(preterm_df %>% filter(biliprem > 0),
-             aes(x = PML, y = biliprem)) +
+      ggplot(
+        preterm_df %>% filter(biliwaarde > 0),
+        aes(x = `postmenstruele leeftijd`, y = biliwaarde)
+      ) +
         geom_point(size = 3,
                    color = "darkgreen",
                    alpha = 0.5) + ylim(0, 25) +
