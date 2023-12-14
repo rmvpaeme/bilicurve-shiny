@@ -13,13 +13,13 @@ library(shinyTime)
 library(shinythemes)
 library(ggrepel)
 library(DT)
-
+library(shinyscreenshot)
 
 # Define UI
 ui <- fluidPage(
   theme = shinytheme("flatly"),
   titlePanel("Indicatie voor fototherapie > of < 35 weken"),
-  sidebarLayout(sidebarPanel(
+  sidebarLayout(sidebarPanel(width = 4,
     tabsetPanel(
       type = "tab",
       id = "main",
@@ -30,6 +30,11 @@ ui <- fluidPage(
                       "ja" = "ja")),
         conditionalPanel(condition = "input.geboortedag == '2022-00-00'",
                          textInput("naam", "Naam", value = "naam")),
+        conditionalPanel(
+          condition = "(input.advanced == 'ja')",
+          h4("Error:"),
+          p("Geavanceerde instellingen geselecteerd, manuele input niet mogelijk.")
+        ),
         conditionalPanel(
           condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
           dateInput(
@@ -130,11 +135,7 @@ ui <- fluidPage(
         "Preterm - Tijdspunt 1",
         conditionalPanel(
           condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
-          textInput(
-            "PML1",
-            "PML (voorbeeldformaat = \"23+1/7\", niet 24w1d, 24+1, oid)",
-            value = "23+1/7"
-          ),
+          textInput("PML1", "PML (formaat = \"23+1/7\")", value = "23+1/7"),
           numericInput(
             "biliprem1",
             "Bilirubine in mg/dL ",
@@ -205,6 +206,10 @@ ui <- fluidPage(
           textInput("PT_stop_GET", "Fototherapie stop datum+uur in CSV ", value = NA),
         )
       ),
+      tabPanel(
+        "Error",
+        "Geavanceerde instellingen geselecteerd, manuele input niet mogelijk. Klik", a("hier", href = "http://rubenvp.shinyapps.io/bilicurve"), "om naar de applicatie met manuele invoer te worden gebracht."
+      ),
     ),
   ),
   
@@ -212,19 +217,21 @@ ui <- fluidPage(
     tabsetPanel(
       type = "tabs",
       tabPanel(
-        "Plot",
-        plotOutput("bilicurve", height = "550px", width = "700px"),
+        "Bilicurve",
+        plotOutput("bilicurve", height = "650px", width = "90%"),
+        screenshotButton(label = "Figuur opslaan", id = "bilicurve"),
         hr(),
         #h4("Ingegeven waarden"),
         DT::dataTableOutput("time_output1"),
         hr(),
+        h4("Disclaimer", style = "font-size:12px;"),
         p(
           "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Maisels MJ, Bhutani VK, Bogen D, Newman TB, Stark AR, Watchko JF. Hyperbilirubinemia in the newborn infant > or =35 weeks' gestation: an update with clarifications. Pediatrics. 2009;124(4):1193-1198. doi:10.1542/peds.2009-032 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. The graph was digitised with WebPlotDigitizer: https://automeris.io/WebPlotDigitizer/. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
-        ),
+          , style = "font-size:12px;"),
         hr()
       ),
       tabPanel(
-        "Original figures",
+        "Oorspronkelijke curves",
         img(
           src = 'bilicurve.jpeg',
           width = "100%",
@@ -237,10 +244,10 @@ ui <- fluidPage(
         )
       ),
       tabPanel(
-        "Usage",
+        "Gebruik",
         p(
           "Values can be entered through the interface. The resulting data can be saved by clicking \"Excel\" underneath the table. 
-          Afterwards, the Excel file can be re-uploaded and data can again be added through the interface. 
+          Afterwards, the Excel file can be re-uploaded and data can again be added through the interface. I advised against manually editing the Excel file, because it will probably result in errors. 
           
           
           Alternatively (advanced usage) data can be provided through a GET request, which ignores all other input. Examples are"
@@ -261,6 +268,45 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
+  
+  observeEvent(input$prematuur,{
+    
+    if(input$prematuur == "ja"){
+      showTab(inputId = "main", target = "Preterm - Tijdspunt 1")
+      showTab(inputId = "main", target = "Preterm - Tijdspunt 2")
+      showTab(inputId = "main", target = "Preterm - Tijdspunt 3")
+      hideTab(inputId = "main", target = "Aterm - Tijdspunt 3")
+      hideTab(inputId = "main", target = "Aterm - Tijdspunt 2")
+      hideTab(inputId = "main", target = "Aterm - Tijdspunt 1")
+    } else if (input$prematuur == "nee") {
+      hideTab(inputId = "main", target = "Preterm - Tijdspunt 1")
+      hideTab(inputId = "main", target = "Preterm - Tijdspunt 2")
+      hideTab(inputId = "main", target = "Preterm - Tijdspunt 3")
+      showTab(inputId = "main", target = "Aterm - Tijdspunt 3")
+      showTab(inputId = "main", target = "Aterm - Tijdspunt 2")
+      showTab(inputId = "main", target = "Aterm - Tijdspunt 1")
+    }
+  })
+  
+  
+  observeEvent(input$advanced,{
+    
+    if(input$advanced == "ja"){
+      hideTab(inputId = "main", target = "Preterm - Tijdspunt 1")
+      hideTab(inputId = "main", target = "Preterm - Tijdspunt 2")
+      hideTab(inputId = "main", target = "Preterm - Tijdspunt 3")
+      hideTab(inputId = "main", target = "Aterm - Tijdspunt 3")
+      hideTab(inputId = "main", target = "Aterm - Tijdspunt 2")
+      hideTab(inputId = "main", target = "Aterm - Tijdspunt 1")
+      hideTab(inputId = "main", target = "Geavanceerd")
+      showTab(inputId = "main", target = "Error")
+      hideTab(inputId = "main", target = "Patiëntengegevens")
+    } else{
+      hideTab(inputId = "main", target = "Error")
+    }
+      
+  })
+  
   # format text to yyy-mm-dd hh:mm:ss
   vals <- reactiveValues()
   
@@ -351,6 +397,7 @@ server <- function(input, output, session) {
   
   newData <- reactive({
 
+    
     
     
     # parse GET request
@@ -576,7 +623,7 @@ server <- function(input, output, session) {
     DT::datatable({
       df
     },
-    
+    caption = "Je kan de tabel opslaan via de Excel knop om nadien terug te importeren in de tool om extra waarden toe te voegen. Belangrijk: doe zelf geen aanpassingen aan de Excel.",  
     extensions = 'Buttons',
     
     options = list(
@@ -585,8 +632,13 @@ server <- function(input, output, session) {
       fixedColumns = TRUE,
       autoWidth = TRUE,
       ordering = TRUE,
-      dom = 'tB',
-      buttons = c('copy', 'excel')
+      dom = 'frtBip',
+      buttons = list(
+        list(
+          extend = "excel", 
+          text = "Save as Excel file"
+        )
+      )
     ),
     rownames = FALSE,
     
