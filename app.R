@@ -320,7 +320,7 @@ server <- function(input, output, session) {
       vals$initial_date <- testdatetime
     }
     else {
-      df_datetime <- readxl::read_excel(inFile$datapath, skip = 1)
+      df_datetime <- readxl::read_excel(inFile$datapath, skip = 2)
       vals$initial_date <-
         df_datetime %>% pull(geboorte) %>% first()
       updateDateInput(session, "geboortedag", value = vals$initial_date)
@@ -608,12 +608,12 @@ server <- function(input, output, session) {
     }
     else {
       if (!is.null(inFile_aterm) && input$prematuur == "nee") {
-        df <- readxl::read_excel(inFile_aterm$datapath, skip = 1)
+        df <- readxl::read_excel(inFile_aterm$datapath, skip = 2)
         df <- bind_rows(df, newData())
       }
       else if (!is.null(inFile_preterm) &&
                input$prematuur == "ja") {
-        df <- readxl::read_excel(inFile_preterm$datapath, skip = 1)
+        df <- readxl::read_excel(inFile_preterm$datapath, skip = 2)
         df <- bind_rows(df, newData())
       }
     }
@@ -662,7 +662,7 @@ server <- function(input, output, session) {
         df2 <- newData()
       }
       else {
-        df2 <- readxl::read_excel(inFile$datapath, skip = 1)
+        df2 <- readxl::read_excel(inFile$datapath, skip = 2)
         df2 <- bind_rows(df2, newData())
       }
       
@@ -708,7 +708,7 @@ server <- function(input, output, session) {
         preterm_df <- newData()
       }
       else {
-        preterm_df <- readxl::read_excel(inFile$datapath, skip = 1)
+        preterm_df <- readxl::read_excel(inFile$datapath, skip = 2)
         preterm_df <- bind_rows(preterm_df, newData())
       }
       
