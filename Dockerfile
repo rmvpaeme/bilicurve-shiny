@@ -19,6 +19,8 @@ RUN R -e 'install.packages(c(\
               "tidyverse", \
               "shinyTime", \
               "shinythemes", \
+              "DT", \
+              "shinyscreenshot", \
               "ggrepel" \
             ), \
             repos="https://packagemanager.rstudio.com/cran/__linux__/focal/2023-12-04"\
@@ -27,6 +29,7 @@ RUN R -e 'install.packages(c(\
 
 # copy the app directory into the image
 COPY ./* /srv/shiny-server/
+COPY ./www/* /srv/shiny-server/www
 
 # run app
 CMD ["/usr/bin/shiny-server"]
