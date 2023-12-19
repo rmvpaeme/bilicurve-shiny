@@ -19,202 +19,207 @@ library(shinyscreenshot)
 ui <- fluidPage(
   theme = shinytheme("flatly"),
   titlePanel("Indicatie voor fototherapie > of < 35 weken"),
-  sidebarLayout(sidebarPanel(width = 4,
-    tabsetPanel(
-      type = "tab",
-      id = "main",
-      tabPanel(
-        "Patiëntengegevens",
-        selectInput("prematuur", "Prematuur < 35 weken:",
-                    c("nee" = "nee",
-                      "ja" = "ja")),
-        conditionalPanel(condition = "input.geboortedag == '2022-00-00'",
-                         textInput("naam", "Naam", value = "naam")),
-        conditionalPanel(
-          condition = "(input.advanced == 'ja')",
-          h4("Error:"),
-          p("Geavanceerde instellingen geselecteerd, manuele input niet mogelijk.")
-        ),
-        conditionalPanel(
-          condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
-          dateInput(
-            inputId = 'geboortedag',
-            label = 'Geboortedag (yyyy-mm-dd)',
-            value = Sys.Date()
+  sidebarLayout(
+    sidebarPanel(
+      width = 4,
+      tabsetPanel(
+        type = "tab",
+        id = "main",
+        tabPanel(
+          "Patiëntengegevens",
+          selectInput("prematuur", "Prematuur < 35 weken:",
+                      c("nee" = "nee",
+                        "ja" = "ja")),
+          conditionalPanel(condition = "input.geboortedag == '2022-00-00'",
+                           textInput("naam", "Naam", value = "naam")),
+          conditionalPanel(
+            condition = "(input.advanced == 'ja')",
+            h4("Error:"),
+            p(
+              "Geavanceerde instellingen geselecteerd, manuele input niet mogelijk."
+            )
           ),
-          textInput("geboorteuur", "Geboorteuur", value = "00:01"),
-          fileInput(
-            'file_aterm',
-            'Upload eerder opgeslagen tabel voor aterm',
-            accept = c(".xlsx")
+          conditionalPanel(
+            condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
+            dateInput(
+              inputId = 'geboortedag',
+              label = 'Geboortedag (yyyy-mm-dd)',
+              value = Sys.Date()
+            ),
+            textInput("geboorteuur", "Geboorteuur", value = "00:01"),
+            fileInput(
+              'file_aterm',
+              'Upload eerder opgeslagen tabel voor aterm',
+              accept = c(".xlsx")
+            ),
           ),
-        ),
-        conditionalPanel(
-          condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
-          fileInput(
-            'file_preterm',
-            'Upload eerder opgeslagen tabel voor preterm',
-            accept = c(".xlsx")
+          conditionalPanel(
+            condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
+            fileInput(
+              'file_preterm',
+              'Upload eerder opgeslagen tabel voor preterm',
+              accept = c(".xlsx")
+            )
           )
-        )
-      ),
-      tabPanel(
-        "Aterm - Tijdspunt 1",
-        conditionalPanel(
-          condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
-          dateInput(
-            inputId = 'afnamedag1',
-            label = 'Afnamedag (yyyy-mm-dd)',
-            value = Sys.Date()
-          ),
-          textInput("afnameuur1", "Afnameuur", value = "10:00"),
-          numericInput(
-            "bili1",
-            "Bilirubine in mg/dL ",
-            0,
-            min = 0,
-            max = 100
-          ),
         ),
-        conditionalPanel(
-          condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
-          h4("Error:"),
-          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")
-        ),
-      ),
-      tabPanel(
-        "Aterm - Tijdspunt 2",
-        conditionalPanel(
-          condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
-          dateInput(
-            inputId = 'afnamedag2',
-            label = 'Afnamedag: ',
-            value = Sys.Date()
+        tabPanel(
+          "Aterm - Tijdspunt 1",
+          conditionalPanel(
+            condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
+            dateInput(
+              inputId = 'afnamedag1',
+              label = 'Afnamedag (yyyy-mm-dd)',
+              value = Sys.Date()
+            ),
+            textInput("afnameuur1", "Afnameuur", value = "10:00"),
+            numericInput(
+              "bili1",
+              "Bilirubine in mg/dL ",
+              0,
+              min = 0,
+              max = 100
+            ),
           ),
-          textInput("afnameuur2", "Afnameuur", value = "10:00"),
-          numericInput(
-            "bili2",
-            "Bilirubine in mg/dL ",
-            0,
-            min = 0,
-            max = 100
+          conditionalPanel(
+            condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
+            h4("Error:"),
+            p("Prematuurcurve of geavanceerde instellingen geselecteerd.")
           ),
         ),
-        conditionalPanel(
-          condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
-          h4("Error:"),
-          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")
-        ),
-      ),
-      tabPanel(
-        "Aterm - Tijdspunt 3",
-        conditionalPanel(
-          condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
-          dateInput(
-            inputId = 'afnamedag3',
-            label = 'Afnamedag: ',
-            value = Sys.Date()
+        tabPanel(
+          "Aterm - Tijdspunt 2",
+          conditionalPanel(
+            condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
+            dateInput(
+              inputId = 'afnamedag2',
+              label = 'Afnamedag: ',
+              value = Sys.Date()
+            ),
+            textInput("afnameuur2", "Afnameuur", value = "10:00"),
+            numericInput(
+              "bili2",
+              "Bilirubine in mg/dL ",
+              0,
+              min = 0,
+              max = 100
+            ),
           ),
-          #timeInput("afnameuur3", "Afnameuur", seconds = FALSE, value =  Sys.time()),
-          textInput("afnameuur3", "Afnameuur", value = "10:00"),
-          numericInput(
-            "bili3",
-            "Bilirubine in mg/dL ",
-            0,
-            min = 0,
-            max = 100
-          ),
-        ),
-        conditionalPanel(
-          condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
-          h4("Error:"),
-          p("Prematuurcurve of geavanceerde instellingen geselecteerd.")
-        ),
-      ),
-      tabPanel(
-        "Preterm - Tijdspunt 1",
-        conditionalPanel(
-          condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
-          textInput("PML1", "PML (formaat = \"23+1/7\")", value = "23+1/7"),
-          numericInput(
-            "biliprem1",
-            "Bilirubine in mg/dL ",
-            0,
-            min = 0,
-            max = 100
+          conditionalPanel(
+            condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
+            h4("Error:"),
+            p("Prematuurcurve of geavanceerde instellingen geselecteerd.")
           ),
         ),
-        conditionalPanel(
-          condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
-          h4("Error:"),
-          p("Aterme curve of geavanceerde instellingen geselecteerd.")
-        ),
-      ),
-      tabPanel(
-        "Preterm - Tijdspunt 2",
-        conditionalPanel(
-          condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
-          textInput("PML2", "PML (formaat = \"23+1/7\")", value = "23+1/7"),
-          numericInput(
-            "biliprem2",
-            "Bilirubine in mg/dL ",
-            0,
-            min = 0,
-            max = 100
+        tabPanel(
+          "Aterm - Tijdspunt 3",
+          conditionalPanel(
+            condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
+            dateInput(
+              inputId = 'afnamedag3',
+              label = 'Afnamedag: ',
+              value = Sys.Date()
+            ),
+            #timeInput("afnameuur3", "Afnameuur", seconds = FALSE, value =  Sys.time()),
+            textInput("afnameuur3", "Afnameuur", value = "10:00"),
+            numericInput(
+              "bili3",
+              "Bilirubine in mg/dL ",
+              0,
+              min = 0,
+              max = 100
+            ),
+          ),
+          conditionalPanel(
+            condition = "(input.prematuur == 'ja' || input.advanced == 'ja')",
+            h4("Error:"),
+            p("Prematuurcurve of geavanceerde instellingen geselecteerd.")
           ),
         ),
-        conditionalPanel(
-          condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
-          h4("Error:"),
-          p("Aterme curve of geavanceerde instellingen geselecteerd.")
-        ),
-      ),
-      tabPanel(
-        "Preterm - Tijdspunt 3",
-        conditionalPanel(
-          condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
-          textInput("PML3", "PML (formaat = \"23+1/7\")", value = "23+1/7"),
-          numericInput(
-            "biliprem3",
-            "Bilirubine in mg/dL ",
-            0,
-            min = 0,
-            max = 100
+        tabPanel(
+          "Preterm - Tijdspunt 1",
+          conditionalPanel(
+            condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
+            textInput("PML1", "PML (formaat = \"23+1/7\")", value = "23+1/7"),
+            numericInput(
+              "biliprem1",
+              "Bilirubine in mg/dL ",
+              0,
+              min = 0,
+              max = 100
+            ),
+          ),
+          conditionalPanel(
+            condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
+            h4("Error:"),
+            p("Aterme curve of geavanceerde instellingen geselecteerd.")
           ),
         ),
-        conditionalPanel(
-          condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
-          h4("Error:"),
-          p("Aterme curve of geavanceerde instellingen geselecteerd.")
+        tabPanel(
+          "Preterm - Tijdspunt 2",
+          conditionalPanel(
+            condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
+            textInput("PML2", "PML (formaat = \"23+1/7\")", value = "23+1/7"),
+            numericInput(
+              "biliprem2",
+              "Bilirubine in mg/dL ",
+              0,
+              min = 0,
+              max = 100
+            ),
+          ),
+          conditionalPanel(
+            condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
+            h4("Error:"),
+            p("Aterme curve of geavanceerde instellingen geselecteerd.")
+          ),
         ),
-      ),
-      tabPanel(
-        "Geavanceerd",
-        selectInput(
-          "advanced",
-          "Geavanceerde instellingen:",
-          c("nee" = "nee",
-            "ja" = "ja")
+        tabPanel(
+          "Preterm - Tijdspunt 3",
+          conditionalPanel(
+            condition = "(input.prematuur == 'ja' && input.advanced == 'nee')",
+            textInput("PML3", "PML (formaat = \"23+1/7\")", value = "23+1/7"),
+            numericInput(
+              "biliprem3",
+              "Bilirubine in mg/dL ",
+              0,
+              min = 0,
+              max = 100
+            ),
+          ),
+          conditionalPanel(
+            condition = "(input.prematuur == 'nee' || input.advanced == 'ja')",
+            h4("Error:"),
+            p("Aterme curve of geavanceerde instellingen geselecteerd.")
+          ),
         ),
-        conditionalPanel(
-          condition = "input.advanced == 'ja'",
-          textInput("geboorte_GET", "Geboorteuur in CSV", value = NA),
-          textInput("afname_GET", "Afnameuur in CSV", value = NA),
-          textInput("PML_GET", "Postmenstruele leeftijd in CSV", value = NA),
-          textInput("bili_GET", "Bilirubine in mg/dL in CSV ", value = NA),
-          textInput("PT_start_GET", "Fototherapie start datum+uur in CSV ", value = NA),
-          textInput("PT_stop_GET", "Fototherapie stop datum+uur in CSV ", value = NA),
-        )
-      ),
-      tabPanel(
-        "Error",
-        "Geavanceerde instellingen geselecteerd, manuele input niet mogelijk. Klik", a("hier", href = "http://rubenvp.shinyapps.io/bilicurve"), "om naar de applicatie met manuele invoer te worden gebracht."
+        tabPanel(
+          "Geavanceerd",
+          selectInput(
+            "advanced",
+            "Geavanceerde instellingen:",
+            c("nee" = "nee",
+              "ja" = "ja")
+          ),
+          conditionalPanel(
+            condition = "input.advanced == 'ja'",
+            textInput("geboorte_GET", "Geboorteuur in CSV", value = NA),
+            textInput("afname_GET", "Afnameuur in CSV", value = NA),
+            textInput("PML_GET", "Postmenstruele leeftijd in CSV", value = NA),
+            textInput("bili_GET", "Bilirubine in mg/dL in CSV ", value = NA),
+            textInput("PT_start_GET", "Fototherapie start datum+uur in CSV ", value = NA),
+            textInput("PT_stop_GET", "Fototherapie stop datum+uur in CSV ", value = NA),
+          )
+        ),
+        tabPanel(
+          "Error",
+          "Geavanceerde instellingen geselecteerd, manuele input niet mogelijk. Klik",
+          a("hier", href = "http://rubenvp.shinyapps.io/bilicurve"),
+          "om naar de applicatie met manuele invoer te worden gebracht."
+        ),
       ),
     ),
-  ),
-  
-  mainPanel(
-    tabsetPanel(
+    
+    mainPanel(tabsetPanel(
       type = "tabs",
       tabPanel(
         "Bilicurve",
@@ -226,8 +231,10 @@ ui <- fluidPage(
         hr(),
         h4("Disclaimer", style = "font-size:12px;"),
         p(
-          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Maisels MJ, Bhutani VK, Bogen D, Newman TB, Stark AR, Watchko JF. Hyperbilirubinemia in the newborn infant > or =35 weeks' gestation: an update with clarifications. Pediatrics. 2009;124(4):1193-1198. doi:10.1542/peds.2009-032 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. The graph was digitised with WebPlotDigitizer: https://automeris.io/WebPlotDigitizer/. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
-          , style = "font-size:12px;"),
+          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Maisels MJ, Bhutani VK, Bogen D, Newman TB, Stark AR, Watchko JF. Hyperbilirubinemia in the newborn infant > or =35 weeks' gestation: an update with clarifications. Pediatrics. 2009;124(4):1193-1198. doi:10.1542/peds.2009-032 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. De Luca D, Romagnoli C, Tiberi E, Zuppa AA, Zecca E. Skin bilirubin nomogram for the first 96 h of life in a European normal healthy newborn population, obtained with multiwavelength transcutaneous bilirubinometry. Acta Paediatr. 2008 Feb;97(2):146-50. doi: 10.1111/j.1651-2227.2007.00622.x. PMID: 18254903. The graph was digitised with WebPlotDigitizer: https://automeris.io/WebPlotDigitizer/. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
+          ,
+          style = "font-size:12px;"
+        ),
         hr()
       ),
       tabPanel(
@@ -246,32 +253,40 @@ ui <- fluidPage(
       tabPanel(
         "Gebruik",
         p(
-          "Values can be entered through the interface. The resulting data can be saved by clicking \"Excel\" underneath the table. 
-          Afterwards, the Excel file can be re-uploaded and data can again be added through the interface. I advised against manually editing the Excel file, because it will probably result in errors. 
-          
-          
-          Alternatively (advanced usage) data can be provided through a GET request, which ignores all other input. Examples are"
+          "Values can be entered through the interface. The resulting data can be saved by clicking \"Excel\" underneath the table.
+          Afterwards, the Excel file can be re-uploaded and data can again be added through the interface. I advised against manually editing the Excel file, because it will probably result in errors."
+        ),
+        br(),
+        p(
+          "Alternatively (advanced usage) data can be provided through a GET request, which ignores all other input. Examples are"
         ),
         a(
-          " - http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9", 
-          href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9"
+          " - http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9",
+          href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9"
         ),
         br(),
         br(),
         a(
-          "- http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9",
-          href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9"
-        )
+          "- http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9",
+          href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9"
+        ),
+        br(),
+        br(),
+        p(
+          "Phototherapy can be annotated on the graph through advanced settings (&PT_start_GET and &PT_stop_GET). For this, the length of both parameters need to be equal (i.e. 2 start and 2 stop points. If for example phototherapy was started but not stopped, 'NA' can be used instead (&PT_stop_GET=2023-11-23%2015:00:00,NA):",
+          a(
+            "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PT_start_GET=2023-11-23%2011:00:00,2023-11-24%2012:00:00&PT_stop_GET=2023-11-23%2015:00:00,2023-11-24%2014:00:00",
+            href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PT_start_GET=2023-11-23%2011:00:00,2023-11-24%2012:00:00&PT_stop_GET=2023-11-23%2015:00:00,2023-11-24%2014:00:00"
+          )
+        ),
       )
-    )
-  ))
+    ))
+  )
 )
 
 server <- function(input, output, session) {
-  
-  observeEvent(input$prematuur,{
-    
-    if(input$prematuur == "ja"){
+  observeEvent(input$prematuur, {
+    if (input$prematuur == "ja") {
       showTab(inputId = "main", target = "Preterm - Tijdspunt 1")
       showTab(inputId = "main", target = "Preterm - Tijdspunt 2")
       showTab(inputId = "main", target = "Preterm - Tijdspunt 3")
@@ -289,22 +304,21 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(input$advanced,{
-    
-    if(input$advanced == "ja"){
+  observeEvent(input$advanced, {
+    if (input$advanced == "ja") {
       hideTab(inputId = "main", target = "Preterm - Tijdspunt 1")
       hideTab(inputId = "main", target = "Preterm - Tijdspunt 2")
       hideTab(inputId = "main", target = "Preterm - Tijdspunt 3")
       hideTab(inputId = "main", target = "Aterm - Tijdspunt 3")
       hideTab(inputId = "main", target = "Aterm - Tijdspunt 2")
       hideTab(inputId = "main", target = "Aterm - Tijdspunt 1")
-      hideTab(inputId = "main", target = "Geavanceerd")
+      #hideTab(inputId = "main", target = "Geavanceerd")
       showTab(inputId = "main", target = "Error")
       hideTab(inputId = "main", target = "Patiëntengegevens")
     } else{
       hideTab(inputId = "main", target = "Error")
     }
-      
+    
   })
   
   # format text to yyy-mm-dd hh:mm:ss
@@ -396,10 +410,6 @@ server <- function(input, output, session) {
     eval(parse(text = x))
   
   newData <- reactive({
-
-    
-    
-    
     # parse GET request
     query <- parseQueryString(session$clientData$url_search)
     if (!is.null(query[['naam']])) {
@@ -453,7 +463,9 @@ server <- function(input, output, session) {
     if (!is.null(query[['PT_start_GET']])) {
       updateTextInput(session, "PT_start_GET", value = query[['PT_start_GET']])
     }
-    
+    if (!is.null(query[['PT_stop_GET']])) {
+      updateTextInput(session, "PT_stop_GET", value = query[['PT_stop_GET']])
+    }
     
     name <- as.character(input$naam)
     value <- as.character(vals$initial_date)
@@ -493,8 +505,12 @@ server <- function(input, output, session) {
       bili_GET <- as.character(input$bili_GET)
       #PML_GET <- c("23+1/7,24+1/7")
       PML_GET <- as.character(input$PML_GET)
-      #PT_start_GET <- c("2023-11-23 11:00:00,2023-11-24 12:00:00")
-      #PT_stop_GET <- c("2023-11-23 11:10:00,2023-11-24 12:20:00")
+      #PT_start_GET <- c("2023-11-23 11:00:00,2023-11-24 12:00:00,2023-11-25 12:00:00")
+      #PT_start_GET  <- NA
+      PT_start_GET <- as.character(input$PT_start_GET)
+      #PT_stop_GET <- NA
+      PT_stop_GET <- as.character(input$PT_stop_GET)
+      #PT_stop_GET <- c("2023-11-23 13:10:00,2023-11-24 12:20:00,2023-11-25 15:20:00")
       annotation <- "sample"
       
       if (input$prematuur == "nee") {
@@ -502,11 +518,30 @@ server <- function(input, output, session) {
           as.POSIXct(unlist(strsplit(geboorte_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
         afname_GET_POSIX <-
           as.POSIXct(unlist(strsplit(afname_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
-        #PT_start_GET_POSIX <-
-        #  as.POSIXct(unlist(strsplit(PT_start_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
-        #PT_stop_GET_POSIX <-
-        #  as.POSIXct(unlist(strsplit(PT_stop_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
         
+        PT_start_GET_POSIX <-
+          as.POSIXct(unlist(strsplit(PT_start_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
+        PT_stop_GET_POSIX <-
+          as.POSIXct(unlist(strsplit(PT_stop_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
+        
+        if ((length(PT_start_GET_POSIX) == length(PT_stop_GET_POSIX))) {
+          geboorte_GET_POSIX <-
+            as.POSIXct(unlist(strsplit(geboorte_GET, split = ",")),
+                       format = "%Y-%m-%d %H:%M",
+                       tz = "UTC")
+          
+          df_PT <- tibble(PT_start = PT_start_GET_POSIX,
+                          PT_stop = PT_stop_GET_POSIX,
+                          geboorte = geboorte_GET_POSIX)
+          df_PT$diff_days_PT_start <-
+            as.character(difftime(df_PT$PT_start, df_PT$geboorte, units = "days"))
+          df_PT$diff_days_PT_stop <-
+            as.character(difftime(df_PT$PT_stop, df_PT$geboorte, units = "days"))
+        } else {
+          df_PT <- tibble(PT_start = NA,
+                          PT_stop = NA,
+                          geboorte = NA)
+        }
         
         bili_GET_split <-
           as.numeric(unlist(strsplit(bili_GET, split = ",")))
@@ -515,10 +550,10 @@ server <- function(input, output, session) {
             geboorte = geboorte_GET_POSIX,
             afname = afname_GET_POSIX,
             bili = bili_GET_split,
-            annotation = annotation,
-            #PT_start = PT_start_GET_POSIX,
-            #PT_stop = PT_stop_GET_POSIX
+            annotation = annotation
           )
+        
+        
         df_GET$diff_hours <-
           as.character(difftime(df_GET$afname, df_GET$geboorte, units = "hours"))
         df_GET$diff_days <-
@@ -541,7 +576,8 @@ server <- function(input, output, session) {
                                                           `tijd in dagen`,
                                                           biliwaarde,
                                                           annotation)
-        df2
+        #df2
+        list(df = df2, df_PT = df_PT)
       } else {
         df2 <- tibble(time_HR = NA,
                       value = NA,
@@ -557,7 +593,7 @@ server <- function(input, output, session) {
         preterm_df <-
           preterm_df %>% mutate(`postmenstruele leeftijd` = PML,
                                 biliwaarde = biliprem) %>% select(`postmenstruele leeftijd`, biliwaarde) %>% filter(biliwaarde > 0)
-        
+        list(df = preterm_df)
       }
     } else if (input$prematuur == "nee") {
       df2 <-
@@ -589,7 +625,7 @@ server <- function(input, output, session) {
           )),
           annotation = "sample"
         )
-      
+      list(df = df2)
     }
     else if (input$prematuur == "ja") {
       preterm_df <-
@@ -597,6 +633,7 @@ server <- function(input, output, session) {
           `postmenstruele leeftijd` = c(calc(input$PML1), calc(input$PML2), calc(input$PML3)),
           biliwaarde = c(input$biliprem1, input$biliprem2, input$biliprem3)
         )
+      list(df = preterm_df)
     }
   })
   
@@ -604,17 +641,17 @@ server <- function(input, output, session) {
     inFile_aterm <- input$file_aterm
     inFile_preterm <- input$file_preterm
     if (is.null(inFile_aterm) && is.null(inFile_preterm)) {
-      df <- newData()
+      df <- newData()$df
     }
     else {
       if (!is.null(inFile_aterm) && input$prematuur == "nee") {
         df <- readxl::read_excel(inFile_aterm$datapath, skip = 2)
-        df <- bind_rows(df, newData())
+        df <- bind_rows(df, newData()$df)
       }
       else if (!is.null(inFile_preterm) &&
                input$prematuur == "ja") {
         df <- readxl::read_excel(inFile_preterm$datapath, skip = 2)
-        df <- bind_rows(df, newData())
+        df <- bind_rows(df, newData()$df)
       }
     }
     
@@ -623,7 +660,7 @@ server <- function(input, output, session) {
     DT::datatable({
       df
     },
-    caption = "Je kan de tabel opslaan via de Excel knop om nadien terug te importeren in de tool om extra waarden toe te voegen. Belangrijk: doe zelf geen aanpassingen aan de Excel.",  
+    caption = "Je kan de tabel opslaan via de Excel knop om nadien terug te importeren in de tool om extra waarden toe te voegen. Belangrijk: doe zelf geen aanpassingen aan de Excel.",
     extensions = 'Buttons',
     
     options = list(
@@ -633,22 +670,13 @@ server <- function(input, output, session) {
       autoWidth = TRUE,
       ordering = TRUE,
       dom = 'frtBip',
-      buttons = list(
-        list(
-          extend = "excel", 
-          text = "Save as Excel file"
-        )
-      )
+      buttons = list(list(extend = "excel",
+                          text = "Save as Excel file"))
     ),
     rownames = FALSE,
     
     class = "display")
     
-    #testvalues
-    #geboorte_GET <- c("2023-11-22T10:00:00")
-    #afname_GET <- c("2023-11-23T10:00:00;2023-11-24T10:00:00")
-    #bili_GET <- c("10,9")
-    #PML_GET <- c("23+1/7,24+1/7")
     
     
   })
@@ -659,11 +687,11 @@ server <- function(input, output, session) {
     if (input$prematuur == "nee") {
       inFile <- input$file_aterm
       if (is.null(inFile)) {
-        df2 <- newData()
+        df2 <- newData()$df
       }
       else {
         df2 <- readxl::read_excel(inFile$datapath, skip = 2)
-        df2 <- bind_rows(df2, newData())
+        df2 <- bind_rows(df2, newData()$df)
       }
       
       # read the dataframe that wil be used for plotting LR, MR, HR
@@ -682,19 +710,25 @@ server <- function(input, output, session) {
         )
       df <-
         df %>% tidyr::gather(key = "annotation",
-                             value = "value",-c(time_HR, time_MR, time_LR))
+                             value = "value",
+                             -c(time_HR, time_MR, time_LR))
       df <- df %>% select(-c(time_LR, time_MR))
       df <-
         df %>% mutate(`tijd in dagen` = time_HR, biliwaarde = value) %>% select(-c(time_HR, value))
       df <- bind_rows(df, df2)
-      
+      df_TcB = tibble(
+        annotation = "threshold for serum confirmation of TcB if no risk factors",
+        `tijd in dagen` = c(1, 1.5, 2, 3, 4),
+        biliwaarde = c(8, 10, 12, 14, 17)
+      )
+      df_all <- bind_rows(df, df_TcB)
       # extract the most recent entered value to annotate the corresponding thresholds for LR, MR and HR on the plot
       x_seq = df2 %>% filter(biliwaarde > 0) %>% pull(`tijd in dagen`)
       
-      intersections <- df %>% filter(annotation != "sample") %>%
+      intersections <- df_all %>% filter(annotation != "sample") %>%
         group_by(annotation) %>%
         dplyr::reframe(interpolated = approx(x = `tijd in dagen`, y = biliwaarde, xout = x_seq)$y) %>%
-        mutate(x_seq = rep(x_seq, 3)) %>%
+        mutate(x_seq = rep(x_seq, 4)) %>%
         arrange(annotation, x_seq) %>%
         group_by(annotation) %>%
         summarise(across(everything(), last)) %>% mutate(interpolated = round(interpolated, 1))
@@ -705,11 +739,11 @@ server <- function(input, output, session) {
     else if (input$prematuur == "ja") {
       inFile <- input$file_preterm
       if (is.null(inFile)) {
-        preterm_df <- newData()
+        preterm_df <- newData()$df
       }
       else {
         preterm_df <- readxl::read_excel(inFile$datapath, skip = 2)
-        preterm_df <- bind_rows(preterm_df, newData())
+        preterm_df <- bind_rows(preterm_df, newData()$df)
       }
       
     }
@@ -717,6 +751,22 @@ server <- function(input, output, session) {
     
     
     if (input$prematuur == "nee") {
+      df_PT <- newData()$df_PT
+      if ((length(input$PT_start_GET) == length(input$PT_stop_GET)) &&
+          (sum(!is.na(input$PT_stop_GET)) == sum(!is.na(input$PT_start_GET)))) {
+        PT_ggplot <- annotate(
+          geom = "rect",
+          xmin = c(as.numeric(df_PT$diff_days_PT_start)),
+          xmax = c(as.numeric(df_PT$diff_days_PT_stop)),
+          ymin = rep(-Inf, length(df_PT$diff_days_PT_start)),
+          ymax = rep(Inf, length(df_PT$diff_days_PT_start)),
+          fill = "orange",
+          alpha = 0.2
+        )
+      } else {
+        PT_ggplot <- NA
+      }
+      
       g <-
         ggplot(df, aes(y = biliwaarde, x = `tijd in dagen`, col = annotation)) +  geom_vline(
           xintercept = last_intersect,
@@ -728,28 +778,32 @@ server <- function(input, output, session) {
           show.legend = FALSE,
           size = 5,
           aes(x_seq, interpolated, label = round(interpolated, 2)),
-          min.segment.length = 0,
+          min.segment.length = 1,
           seed = 42,
           box.padding = 0.5,
-          max.overlaps =  Inf
+          max.overlaps =  Inf,
+          nudge_x = 1,
+          force = 1
         )  +
-        geom_line(data = df %>% filter(annotation != "sample"))  + theme_bw() + xlim(0, 7) + ylim(0, 25) + xlab("age in days") + ylab("TSB, mg/dL") +
+        geom_line(data = df %>% filter(annotation != "sample"))  + theme_bw() + xlim(0, 7) + ylim(0, 25) + xlab("age in days") + ylab("bilirubin, mg/dL") +
+        geom_line(data = df_TcB, linetype = "dashed") +
         geom_point(
           data = df %>% filter(annotation == "sample", biliwaarde > 0),
           aes(y = biliwaarde, x = `tijd in dagen`, col = annotation),
           size = 3
-        ) + theme(
+        ) + labs(subtitle = paste0("°", df2 %>% pull(geboorte) %>% first())) + theme(
           text = element_text(size = 20),
           legend.position = "bottom",
           legend.box = "horizontal",
           legend.title = element_blank()
         ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7),
                                limits = c(0, 7.1)) +
-        geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated))#+
-      # annotate(geom = "vline",
-      #          x = c(as.numeric(df_GET$diff_hours_PT_start)),
-      #          xintercept = c(as.numeric(df_GET$diff_hours_PT_start)),
-      #          linetype = c("dotdash"), color = "orange") +
+        geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot
+      
+      #annotate(geom = "vline",
+      #          x = c(as.numeric(df_GET$diff_days_PT_start)),
+      #          xintercept = c(as.numeric(df_GET$diff_days_PT_start)),
+      #         linetype = c("dotdash"), color = "orange") +
       # annotate(geom = "text",
       #          label = c(as.character("FT start")),
       #          x = c(as.numeric(df_GET$diff_hours_PT_start)),
@@ -758,7 +812,7 @@ server <- function(input, output, session) {
       #          vjust = 0, color = "orange")
       #
       
-      g + guides(color = guide_legend(nrow = 4))
+      g + guides(color = guide_legend(nrow = 5))
     } else{
       ggplot(
         preterm_df %>% filter(biliwaarde > 0),
