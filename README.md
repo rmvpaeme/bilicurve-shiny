@@ -22,9 +22,12 @@ Manual input allows three timepoints. However, unlimited time points can be ente
 For the preterm (`&prematuur=ja`) chart, only the gestational age (`&PML_GET=23.14,24.15`) and the bilirubin level (`&bili_GET=10,9`) is required.
 For the term (`&prematuur=nee`) chart, the date/hour or birth (`geboorte_GET=2023-11-22%2010:00:00`) + date/hour of sampling (`afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00`) and bilirubin levels (`&bili_GET=10,9`) are required.
 
+Phototherapy can be annotated on the graph through advanced settings (`&PT_start_GET` and `&PT_stop_GET`). For this, the length of both parameters need to be equal (i.e. 2 start and 2 stop points. If for example phototherapy was started but not stopped, 'NA' can be used instead (`&PT_stop_GET=2023-11-23%2015:00:00,NA`). Phototherapy for the preterm graph is not supported yet.
+
 Examples:
 - Term: http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9
 - Preterm: http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9
+- Term with phototherapy:  http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PT_start_GET=2023-11-23%2011:00:00,2023-11-24%2012:00:00&PT_stop_GET=2023-11-23%2015:00:00,2023-11-24%2014:00:00
 
 
 ## Installation 
