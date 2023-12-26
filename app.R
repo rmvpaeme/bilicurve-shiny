@@ -208,7 +208,7 @@ ui <- fluidPage(
         "Bilicurve",
         conditionalPanel(
         condition = "(input.bilirisk != NA)",
-        plotOutput("bilicurve", height = "650px", width = "90%"),
+        plotOutput("bilicurve", height = "650px", width = "100%"),
         screenshotButton(label = "Figuur opslaan", id = "bilicurve"),
         hr(),
         #h4("Ingegeven waarden"),
@@ -216,7 +216,7 @@ ui <- fluidPage(
         hr(),
         h4("Disclaimer", style = "font-size:12px;"),
         p(
-          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Maisels MJ, Bhutani VK, Bogen D, Newman TB, Stark AR, Watchko JF. Hyperbilirubinemia in the newborn infant > or =35 weeks' gestation: an update with clarifications. Pediatrics. 2009;124(4):1193-1198. doi:10.1542/peds.2009-032 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. De Luca D, Romagnoli C, Tiberi E, Zuppa AA, Zecca E. Skin bilirubin nomogram for the first 96 h of life in a European normal healthy newborn population, obtained with multiwavelength transcutaneous bilirubinometry. Acta Paediatr. 2008 Feb;97(2):146-50. doi: 10.1111/j.1651-2227.2007.00622.x. PMID: 18254903. The graph was digitised with WebPlotDigitizer: https://automeris.io/WebPlotDigitizer/. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
+          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Kemper AR, Newman TB, Slaughter JL, et al. Clinical Practice Guideline Revision: Management of Hyperbilirubinemia in the Newborn Infant 35 or More Weeks of Gestation. Pediatrics. 2022;150(3):e2022058859. doi:10.1542/peds.2022-058859 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. De Luca D, Romagnoli C, Tiberi E, Zuppa AA, Zecca E. Skin bilirubin nomogram for the first 96 h of life in a European normal healthy newborn population, obtained with multiwavelength transcutaneous bilirubinometry. Acta Paediatr. 2008 Feb;97(2):146-50. doi: 10.1111/j.1651-2227.2007.00622.x. PMID: 18254903. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
           ,
           style = "font-size:12px;"
         ),
@@ -232,7 +232,12 @@ ui <- fluidPage(
       tabPanel(
         "Oorspronkelijke curves",
         img(
-          src = 'bilicurve.jpeg',
+          src = 'bili_RF.png',
+          width = "100%",
+          height = "100%"
+        ),
+        img(
+          src = 'bili_noRF.png',
           width = "100%",
           height = "100%"
         ),
@@ -730,7 +735,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       df <- df %>% 
         group_by(annotation) %>%
         filter(!duplicated(bilirubin))
-      max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 360) %>% filter(!is.na(annotation))
+      max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
       df <- rbind(max_vals, df)
       if (PML_geboorte < 36 && PML_geboorte >= 35){
       df <- df %>% filter(annotation == "35w_norisk")
@@ -759,7 +764,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         df <- df %>% 
           group_by(annotation, bilirubin) %>%
           filter(!duplicated(bilirubin))
-        max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 360) %>% filter(!is.na(annotation))
+        max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
         df <- rbind(max_vals, df)
         
         if (PML_geboorte < 36 && PML_geboorte >= 35){
@@ -875,7 +880,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           force = 1
         )  +
         geom_line(data = df %>% filter(annotation != "sample"), size = 1)  + 
-        theme_bw() + xlim(0, 7) + ylim(0, 25) + xlab("age in days") + ylab("bilirubin, mg/dL") +
+        theme_bw() +  ylim(5, 22.5) + xlab("age in days") + ylab("bilirubin, mg/dL") +
         geom_line(data = df_TcB, linetype = "dashed", size = 1) +
         geom_point(
           data = df %>% filter(annotation == "sample", biliwaarde > 0),
@@ -886,8 +891,10 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           legend.position = "bottom",
           legend.box = "horizontal",
           legend.title = element_blank()
-        ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7,8,9,10,11,12,13,14,15),
-                               limits = c(0, 15.1)) +
+        ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7,8,9,10,11,12,13,14),
+                               limits = c(0, 14.1)) +
+         scale_y_continuous(breaks = seq(0,22.5, by = 2),
+                             limits = c(5, 22.5)) +
         geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot
 
       g + guides(color = guide_legend(nrow = 5))
