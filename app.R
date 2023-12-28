@@ -28,9 +28,12 @@ ui <- fluidPage(
         id = "main",
         tabPanel(
           "Patiëntengegevens",
+          conditionalPanel(
+            condition = "(input.advanced == 'nee')",
           selectInput("prematuur", "Prematuur < 35 weken:",
                       c("nee" = "nee",
                         "ja" = "ja")),
+          ),
           selectInput("bili_risk", "Risicofactoren aanwezig",
                       choices = c("maak een keuze" = "maak een keuze", "nee" = "nee",
                                   "ja" = "ja")),
@@ -38,7 +41,6 @@ ui <- fluidPage(
                            textInput("naam", "Naam", value = "naam")),
           conditionalPanel(
             condition = "(input.advanced == 'ja')",
-            h4("Error:"),
             p(
               "Geavanceerde instellingen geselecteerd, manuele input niet mogelijk. Klik",
               a("hier", href = "http://rubenvp.shinyapps.io/bilicurve"),
@@ -53,7 +55,7 @@ ui <- fluidPage(
               value = Sys.Date()
             ),
             textInput("geboorteuur", "Geboorteuur", value = "00:01"),
-            textInput("PML_geboorte", "PML bij geboorte (formaat = \"36+1/7\")", value = "36+1/7"),
+            textInput("PML_geboorte", "PML bij geboorte (formaat = \"36+1/7\"). Geeft error bij waarden < 35+0/7.", value = NA),
             fileInput(
               'file_aterm',
               'Upload eerder opgeslagen tabel voor aterm',
@@ -184,10 +186,16 @@ ui <- fluidPage(
           ),
           conditionalPanel(
             condition = "input.advanced == 'ja'",
-            textInput("geboorte_GET", "Geboorteuur in CSV", value = NA),
-            textInput("afname_GET", "Afnameuur in CSV", value = NA),
-            textInput("PML_GET", "Postmenstruele leeftijd in CSV", value = NA),
-            textInput("bili_GET", "Bilirubine in mg/dL in CSV ", value = NA),
+            h4("Error"),
+            p("Geavanceerde instellingen geselecteerd, manuele input niet mogelijk. Klik",
+            a("hier", href = "http://rubenvp.shinyapps.io/bilicurve"),
+            "om naar de applicatie met manuele invoer te worden gebracht. De waarden hieronder zijn automatisch gegenereerd en zijn niet aan te passen. "
+            ),
+            textInput("geboorte_GET", "Geboortedag en uur in CSV (enkel voor curve > 35 weken)", value = NA),
+            textInput("afname_GET", "Afname dag en uur in CSV (enkel voor curve > 35 weken)", value = NA),
+            textInput("PML_geboorte_GET", "Postmenstruele leeftijd bij geboorte (enkel voor curve > 35 weken)", value = NA),
+            textInput("PML_GET", "Postmenstruele leeftijd bij afname (enkel nodig voor curve < 35 weken) in CSV", value = NA),
+            textInput("bili_GET", "Bilirubine in mg/dL in CSV (beide curven)", value = NA),
             textInput("PT_start_GET", "Fototherapie start datum+uur in CSV ", value = NA),
             textInput("PT_stop_GET", "Fototherapie stop datum+uur in CSV ", value = NA),
           )
@@ -226,8 +234,8 @@ ui <- fluidPage(
         "Maak een keuze",
         img(
           src = 'melding.png',
-          width = "100%",
-          height = "100%"
+          width = "600px",
+          height = "600px"
         )),
       tabPanel(
         "Oorspronkelijke curves",
@@ -258,8 +266,8 @@ ui <- fluidPage(
           "Alternatively (advanced usage) data can be provided through a GET request, which ignores all other input. Examples are"
         ),
         a(
-          " - http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9",
-          href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9"
+          " - http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PML_geboorte_GET=37.28",
+          href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PML_geboorte_GET=37.28"
         ),
         br(),
         br(),
@@ -272,8 +280,8 @@ ui <- fluidPage(
         p(
           "Phototherapy can be annotated on the graph through advanced settings (&PT_start_GET and &PT_stop_GET). For this, the length of both parameters need to be equal (i.e. 2 start and 2 stop points. If for example phototherapy was started but not stopped, 'NA' can be used instead (&PT_stop_GET=2023-11-23%2015:00:00,NA):",
           a(
-            "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PT_start_GET=2023-11-23%2011:00:00,2023-11-24%2012:00:00&PT_stop_GET=2023-11-23%2015:00:00,2023-11-24%2014:00:00",
-            href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PT_start_GET=2023-11-23%2011:00:00,2023-11-24%2012:00:00&PT_stop_GET=2023-11-23%2015:00:00,2023-11-24%2014:00:00"
+            "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PML_geboorte_GET=37.28&PT_start_GET=2023-11-23%2011:00:00,2023-11-24%2012:00:00&PT_stop_GET=2023-11-23%2015:00:00,2023-11-24%2014:00:00",
+            href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PML_geboorte_GET=37.28&PT_start_GET=2023-11-23%2011:00:00,2023-11-24%2012:00:00&PT_stop_GET=2023-11-23%2015:00:00,2023-11-24%2014:00:00"
           ),
           br(),
           br(),
@@ -326,9 +334,9 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       hideTab(inputId = "main", target = "Aterm - Tijdspunt 3")
       hideTab(inputId = "main", target = "Aterm - Tijdspunt 2")
       hideTab(inputId = "main", target = "Aterm - biliwaarden")
-      hideTab(inputId = "main", target = "Geavanceerd")
-      showTab(inputId = "main", target = "Error")
-      #hideTab(inputId = "main", target = "Patiëntengegevens")
+      #hideTab(inputId = "main", target = "Geavanceerd")
+      hideTab(inputId = "main", target = "Error")
+      #hideTab(inputId = "main", target = "PatiÃ«ntengegevens")
     } else{
       hideTab(inputId = "main", target = "Error")
     }
@@ -484,6 +492,9 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
     if (!is.null(query[['PT_stop_GET']])) {
       updateTextInput(session, "PT_stop_GET", value = query[['PT_stop_GET']])
     }
+    if (!is.null(query[['PML_geboorte_GET']])) {
+      updateTextInput(session, "PML_geboorte_GET", value = query[['PML_geboorte_GET']])
+    }
     
     name <- as.character(input$naam)
     value <- as.character(vals$initial_date)
@@ -517,6 +528,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
     if (input$advanced == "ja") {
       #geboorte_GET <- c("2023-11-22 10:00:00")
       geboorte_GET <- as.character(input$geboorte_GET)
+      PML_geboorte_GET <- as.character(input$PML_geboorte_GET)
       #afname_GET <- c("2023-11-23 10:00:00,2023-11-24 10:00:00")
       afname_GET <- as.character(input$afname_GET)
       #bili_GET <- c("10,9")
@@ -536,7 +548,8 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           as.POSIXct(unlist(strsplit(geboorte_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
         afname_GET_POSIX <-
           as.POSIXct(unlist(strsplit(afname_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
-        
+        PML_geboorte_GET <- calc(unlist(strsplit(PML_geboorte_GET, split = ",")))
+          
         PT_start_GET_POSIX <-
           as.POSIXct(unlist(strsplit(PT_start_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
         PT_stop_GET_POSIX <-
@@ -587,11 +600,13 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
             `tijd in uren` = as.double(diff_hours),
             `tijd in dagen` = as.double(diff_days),
             biliwaarde = as.double(bili),
+            `PML bij geboorte` = as.double(PML_geboorte_GET),
             annotation = "sample"
           )  %>% filter(`tijd in dagen` < 10)  %>% select(geboorte,
                                                           afnamemoment,
                                                           `tijd in uren`,
                                                           `tijd in dagen`,
+                                                          `PML bij geboorte`,
                                                           biliwaarde,
                                                           annotation)
         #df2
@@ -653,7 +668,8 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           biliwaarde = as.double(c(
             bili1, bili2, bili3, bili4, bili5, bili6, bili7
           )),
-          annotation = "sample"
+          annotation = "sample",
+          `PML bij geboorte` = input$PML_geboorte
         )
       list(df = df2)
     }
@@ -687,7 +703,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
     
     df <- df %>% filter(biliwaarde > 0)
     df <- df %>% mutate_if(is.numeric, ~ round(., 2))
-    df$`PML bij geboorte` <- input$PML_geboorte
+    
     df$risicofactoren <- input$bili_risk
     DT::datatable({
       df
@@ -727,8 +743,9 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       }
       
       # read the dataframe that wil be used for plotting LR, MR, HR
-      PML_geboorte <- calc(input$PML_geboorte) 
+      PML_geboorte <- df2 %>% pull(`PML bij geboorte`) %>% first()
       if (input$bili_risk == "nee"){
+      highlight = NA
       df <- read_tsv("./data/all_norisk.tsv")
       df <- df %>% filter(!is.na(bilirubin))
       df <- df %>% arrange(annotation,time)
@@ -738,26 +755,32 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
       df <- rbind(max_vals, df)
       if (PML_geboorte < 36 && PML_geboorte >= 35){
-      df <- df %>% filter(annotation == "35w_norisk")
+      #df <- df %>% filter(annotation == "35w_norisk")
       df$annotation <- sub("35w_norisk", "35 weeks", df$annotation)
+      highlight <- "35 weeks"
       } else if (PML_geboorte < 37 && PML_geboorte >= 36){
-        df <- df %>% filter(annotation == "36w_norisk")
+        #df <- df %>% filter(annotation == "36w_norisk")
         df$annotation <- sub("36w_norisk", "36 weeks", df$annotation)
+        highlight <- "36 weeks"
       } else if (PML_geboorte < 38 && PML_geboorte >= 37){
-        df <- df %>% filter(annotation == "37w_norisk")
+        #df <- df %>% filter(annotation == "37w_norisk")
         df$annotation <- sub("37w_norisk", "37 weeks", df$annotation)
+        highlight <- "37 weeks"
       } else if (PML_geboorte < 39 && PML_geboorte >= 38){
-        df <- df %>% filter(annotation == "38w_norisk")
+        #df <- df %>% filter(annotation == "38w_norisk")
         df$annotation <- sub("38w_norisk", "38 weeks", df$annotation)
+        highlight <- "38 weeks"
       } else if (PML_geboorte < 40 && PML_geboorte >= 39){
-        df <- df %>% filter(annotation == "39w_norisk")
+        #df <- df %>% filter(annotation == "39w_norisk")
         df$annotation <- sub("39w_norisk", "39 weeks", df$annotation)
+        highlight <- "39 weeks"
       } else if (PML_geboorte >= 40){
-        df <- df %>% filter(annotation == "40w_norisk")
+        #df <- df %>% filter(annotation == "40w_norisk")
         df$annotation <- sub("40w_norisk", ">= 40 weeks", df$annotation)
+        highlight <- ">= 40 weeks"
       }
       } else if (input$bili_risk == "ja"){
-        
+        highlight = NA
         df <- read_tsv("./data/all_risk.tsv")
         df <- df %>% filter(!is.na(bilirubin))
         df <- df %>% arrange(annotation,time)
@@ -768,17 +791,21 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         df <- rbind(max_vals, df)
         
         if (PML_geboorte < 36 && PML_geboorte >= 35){
-          df <- df %>% filter(annotation == "35w_risk")
+          #df <- df %>% filter(annotation == "35w_risk")
           df$annotation <- sub("35w_risk", "35 weeks", df$annotation)
+          highlight <- "35 weeks"
         } else if (PML_geboorte < 37 && PML_geboorte >= 36){
-          df <- df %>% filter(annotation == "36w_risk")
+          #df <- df %>% filter(annotation == "36w_risk")
           df$annotation <- sub("36w_risk", "36 weeks", df$annotation)
+          highlight <- "36 weeks"
         } else if (PML_geboorte < 38 && PML_geboorte >= 37){
-          df <- df %>% filter(annotation == "37w_risk")
+          #df <- df %>% filter(annotation == "37w_risk")
           df$annotation <- sub("37w_risk", "37 weeks", df$annotation)
+          highlight <- "37 weeks"
         } else if (PML_geboorte >= 38){
-          df <- df %>% filter(annotation == "38w_risk")
+          #df <- df %>% filter(annotation == "38w_risk")
           df$annotation <- sub("38w_risk", ">= 38 weeks", df$annotation)
+          highlight <- ">= 38 weeks"          
       }
       }
       
@@ -815,7 +842,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       # extract the most recent entered value to annotate the corresponding thresholds for LR, MR and HR on the plot
       x_seq = df2 %>% filter(biliwaarde > 0) %>% pull(`tijd in dagen`)
       
-      intersections <- df_all %>% filter(annotation != "sample") %>%
+      intersections <- df_all %>% filter(annotation != "sample") %>% filter(annotation == highlight | annotation == "threshold for serum confirmation of TcB if no risk factors") %>%
         group_by(annotation) %>%
         dplyr::reframe(interpolated = approx(x = `tijd in dagen`, y = biliwaarde, xout = x_seq)$y) %>%
         mutate(x_seq = rep(x_seq, 2)) %>%
@@ -879,14 +906,15 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           nudge_x = 1,
           force = 1
         )  +
-        geom_line(data = df %>% filter(annotation != "sample"), size = 1)  + 
+        geom_line(data = df %>% filter(annotation != "sample") %>% filter(annotation == highlight), size = 1)  + 
+        geom_line(data = df %>% filter(annotation != "sample") %>% filter(annotation != highlight), aes(group = annotation, col = annotation), size = 0.5, color = "gray80")  + 
         theme_bw() +  ylim(5, 22.5) + xlab("age in days") + ylab("bilirubin, mg/dL") +
         geom_line(data = df_TcB, linetype = "dashed", size = 1) +
         geom_point(
           data = df %>% filter(annotation == "sample", biliwaarde > 0),
           aes(y = biliwaarde, x = `tijd in dagen`, col = annotation),
           size = 3
-        ) + labs(subtitle = paste0("°", df2 %>% pull(geboorte) %>% first())) + theme(
+        ) + labs(subtitle = paste0("Â°", df2 %>% pull(geboorte) %>% first())) + theme(
           text = element_text(size = 20),
           legend.position = "bottom",
           legend.box = "horizontal",
