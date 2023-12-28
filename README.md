@@ -22,7 +22,7 @@ Values should appear on the graph.
 Manual input allows three timepoints. However, unlimited time points can be entered through the advanced panel and through a HTTP GET request. The input for multiple values is in CSV format. If values are entered in advanced mode (`?advanced=ja`), all values from manual mode are overridden.
 
 1. For the preterm (`&prematuur=ja`) chart, only the gestational age (`&PML_GET=23.14,24.15`) and the bilirubin level (`&bili_GET=10,9`) is required.
-2. For the term (`&prematuur=nee`) chart, the date/hour or birth (`geboorte_GET=2023-11-22%2010:00:00`) + date/hour of sampling (`afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00`), bilirubin levels (`&bili_GET=10,9`) and the gestational age at birst (`&PML_geboorte_GET=37+1/7`) are required.
+2. For the term (`&prematuur=nee`) chart, the date/hour or birth (`geboorte_GET=2023-11-22%2010:00:00`) + date/hour of sampling (`afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00`), bilirubin levels (`&bili_GET=10,9`) and the gestational age at birth (`&PML_geboorte_GET=37+1/7`) are required.
 
 Additionally, the use of phototherapy can be annotated on the graph through advanced settings (`&PT_start_GET` and `&PT_stop_GET`). 
 - For the term graph, a timepoint (yyy-mm-dd hh:mm) needs to be provided. 
