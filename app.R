@@ -18,8 +18,9 @@ library(shinyscreenshot)
 
 # Define UI
 ui <- fluidPage(
-  theme = shinytheme("flatly"),
-  titlePanel("Indicatie voor fototherapie > of < 35 weken"),
+  theme = shinytheme("cosmo"),
+  #shinythemes::themeSelector(),
+  titlePanel("Indicatie voor fototherapie"),
   sidebarLayout(
     sidebarPanel(
       width = 4,
@@ -224,7 +225,7 @@ ui <- fluidPage(
           hr(),
           h4("Disclaimer", style = "font-size:12px;"),
           p(
-            "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Kemper AR, Newman TB, Slaughter JL, et al. Clinical Practice Guideline Revision: Management of Hyperbilirubinemia in the Newborn Infant 35 or More Weeks of Gestation. Pediatrics. 2022;150(3):e2022058859. doi:10.1542/peds.2022-058859 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. De Luca D, Romagnoli C, Tiberi E, Zuppa AA, Zecca E. Skin bilirubin nomogram for the first 96 h of life in a European normal healthy newborn population, obtained with multiwavelength transcutaneous bilirubinometry. Acta Paediatr. 2008 Feb;97(2):146-50. doi: 10.1111/j.1651-2227.2007.00622.x. PMID: 18254903. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
+            "Authors: Ruben Van Paemel, Kris De Coen, Sophie Vanhaesebrouck (NICU Ghent University Hospital). This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Kemper AR, Newman TB, Slaughter JL, et al. Clinical Practice Guideline Revision: Management of Hyperbilirubinemia in the Newborn Infant 35 or More Weeks of Gestation. Pediatrics. 2022;150(3):e2022058859. doi:10.1542/peds.2022-058859 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. De Luca D, Romagnoli C, Tiberi E, Zuppa AA, Zecca E. Skin bilirubin nomogram for the first 96 h of life in a European normal healthy newborn population, obtained with multiwavelength transcutaneous bilirubinometry. Acta Paediatr. 2008 Feb;97(2):146-50. doi: 10.1111/j.1651-2227.2007.00622.x. PMID: 18254903. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
             ,
             style = "font-size:12px;"
           ),
@@ -257,39 +258,7 @@ ui <- fluidPage(
       ),
       tabPanel(
         "Gebruik",
-        p(
-          "Values can be entered through the interface. The resulting data can be saved by clicking \"Excel\" underneath the table.
-          Afterwards, the Excel file can be re-uploaded and data can again be added through the interface. I advised against manually editing the Excel file, because it will probably result in errors."
-        ),
-        br(),
-        p(
-          "Alternatively (advanced usage) data can be provided through a GET request, which ignores all other input. Examples are"
-        ),
-        a(
-          " - http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PML_geboorte_GET=37.28",
-          href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PML_geboorte_GET=37.28"
-        ),
-        br(),
-        br(),
-        a(
-          "- http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9",
-          href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9"
-        ),
-        br(),
-        br(),
-        p(
-          "Phototherapy can be annotated on the graph through advanced settings (&PT_start_GET and &PT_stop_GET). For this, the length of both parameters need to be equal (i.e. 2 start and 2 stop points. If for example phototherapy was started but not stopped, 'NA' can be used instead (&PT_stop_GET=2023-11-23%2015:00:00,NA):",
-          a(
-            "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PML_geboorte_GET=37.28&PT_start_GET=2023-11-23%2011:00:00,2023-11-24%2012:00:00&PT_stop_GET=2023-11-23%2015:00:00,2023-11-24%2014:00:00",
-            href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PML_geboorte_GET=37.28&PT_start_GET=2023-11-23%2011:00:00,2023-11-24%2012:00:00&PT_stop_GET=2023-11-23%2015:00:00,2023-11-24%2014:00:00"
-          ),
-          br(),
-          br(),
-          a(
-            "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9&PT_start_GET=23.14,24.14&PT_stop_GET=23.90,24.90",
-            href = "http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9&PT_start_GET=23.14,24.14&PT_stop_GET=23.90,24.90"
-          )
-        ),
+        p("Documentation on advanced usage can be found on", a("https://github.com/rmvpaeme/bilicurve-shiny/", href = "https://github.com/rmvpaeme/bilicurve-shiny/"))
       )
     ))
   )
@@ -746,6 +715,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       PML_geboorte <- df2 %>% pull(`PML bij geboorte`) %>% first()
       if (input$bili_risk == "nee"){
         highlight = NA
+        ggplot_text <- "No Hyperbilirubinemia Neurotoxicity Risk Factors"
         df <- read_tsv("./data/all_norisk.tsv")
         df <- df %>% filter(!is.na(bilirubin))
         df <- df %>% arrange(annotation,time)
@@ -754,6 +724,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           filter(!duplicated(bilirubin))
         max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
         df <- rbind(max_vals, df)
+       
         if (PML_geboorte < 36 && PML_geboorte >= 35){
           #df <- df %>% filter(annotation == "35w_norisk")
           df$annotation <- sub("35w_norisk", "35 weeks", df$annotation)
@@ -781,6 +752,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         }
       } else if (input$bili_risk == "ja"){
         highlight = NA
+        ggplot_text <- "One or More Hyperbilirubinemia Neurotoxicity Risk Factors"
         df <- read_tsv("./data/all_risk.tsv")
         df <- df %>% filter(!is.na(bilirubin))
         df <- df %>% arrange(annotation,time)
@@ -884,7 +856,11 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         PT_ggplot <- NA
       }
       
-      
+      #if (df %>% filter(annotation == "sample") %>% pull(`tijd in dagen`) %>% max() > 7) {
+      #  highest_xlim <- 14
+      #} else{ 
+      #  highest_xlim <- 7
+      #}
       
       g <-
         ggplot(df, aes(y = biliwaarde, x = `tijd in dagen`, col = annotation)) +  geom_vline(
@@ -908,13 +884,13 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         )  +
         geom_line(data = df %>% filter(annotation != "sample") %>% filter(annotation == highlight), size = 1)  + 
         geom_line(data = df %>% filter(annotation != "sample") %>% filter(annotation != highlight), aes(group = annotation, col = annotation), size = 0.5, color = "gray80")  + 
-        theme_bw() +  ylim(5, 22.5) + xlab("age in days") + ylab("bilirubin, mg/dL") +
+        theme_bw() + xlab("age in days") + ylab("bilirubin, mg/dL") +
         geom_line(data = df_TcB, linetype = "dashed", size = 1) +
         geom_point(
           data = df %>% filter(annotation == "sample", biliwaarde > 0),
           aes(y = biliwaarde, x = `tijd in dagen`, col = annotation),
           size = 3
-        ) + labs(subtitle = paste0("°", df2 %>% pull(geboorte) %>% first())) + theme(
+        ) + labs(subtitle = paste0(ggplot_text, "\n", "°", df2 %>% pull(geboorte) %>% first()) ) + theme(
           text = element_text(size = 20),
           legend.position = "bottom",
           legend.box = "horizontal",
@@ -923,6 +899,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
                                limits = c(0, 14.1)) +
         scale_y_continuous(breaks = seq(0,22.5, by = 2),
                            limits = c(5, 22.5)) +
+        theme(plot.subtitle=element_text(size=18)) +
         geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot
       
       g + guides(color = guide_legend(nrow = 5))
