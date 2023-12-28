@@ -44,7 +44,7 @@ The application can be reached at rubenvp.shinyapps.io/bilicurve or can be self-
 Selfhosting of the shiny application is possible through Docker:
 
 ```bash
-docker run -dp 0.0.0.0:3838:3838  rmvpaeme/bilicurve:0.2
+docker run -dp 0.0.0.0:3838:3838  rmvpaeme/bilicurve:0.3
 ```
 
 After installation, the shiny server can be accessed at
