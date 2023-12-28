@@ -30,9 +30,9 @@ ui <- fluidPage(
           "Patiëntengegevens",
           conditionalPanel(
             condition = "(input.advanced == 'nee')",
-          selectInput("prematuur", "Prematuur < 35 weken:",
-                      c("nee" = "nee",
-                        "ja" = "ja")),
+            selectInput("prematuur", "Prematuur < 35 weken:",
+                        c("nee" = "nee",
+                          "ja" = "ja")),
           ),
           selectInput("bili_risk", "Risicofactoren aanwezig",
                       choices = c("maak een keuze" = "maak een keuze", "nee" = "nee",
@@ -76,23 +76,23 @@ ui <- fluidPage(
           conditionalPanel(
             condition = "(input.prematuur == 'nee' && input.advanced == 'nee')",
             fluidRow(
-            h4("Afnamemoment 1"),
-            column(7,
-            dateInput(
-              inputId = 'afnamedag1',
-              label = 'Datum',
-              value = Sys.Date()
-            )),
-            column(5,
-            textInput("afnameuur1", "Uur", value = "10:00")),
-            column(7,
-            numericInput(
-              "bili1",
-              "Bilirubine (mg/dL)",
-              0,
-              min = 0,
-              max = 100
-            ))),
+              h4("Afnamemoment 1"),
+              column(7,
+                     dateInput(
+                       inputId = 'afnamedag1',
+                       label = 'Datum',
+                       value = Sys.Date()
+                     )),
+              column(5,
+                     textInput("afnameuur1", "Uur", value = "10:00")),
+              column(7,
+                     numericInput(
+                       "bili1",
+                       "Bilirubine (mg/dL)",
+                       0,
+                       min = 0,
+                       max = 100
+                     ))),
             fluidRow(
               h4("Afnamemoment 2"),
               column(7,
@@ -188,8 +188,8 @@ ui <- fluidPage(
             condition = "input.advanced == 'ja'",
             h4("Error"),
             p("Geavanceerde instellingen geselecteerd, manuele input niet mogelijk. Klik",
-            a("hier", href = "http://rubenvp.shinyapps.io/bilicurve"),
-            "om naar de applicatie met manuele invoer te worden gebracht. De waarden hieronder zijn automatisch gegenereerd en zijn niet aan te passen. "
+              a("hier", href = "http://rubenvp.shinyapps.io/bilicurve"),
+              "om naar de applicatie met manuele invoer te worden gebracht. De waarden hieronder zijn automatisch gegenereerd en zijn niet aan te passen. "
             ),
             textInput("geboorte_GET", "Geboortedag en uur in CSV (enkel voor curve > 35 weken)", value = NA),
             textInput("afname_GET", "Afname dag en uur in CSV (enkel voor curve > 35 weken)", value = NA),
@@ -215,21 +215,21 @@ ui <- fluidPage(
       tabPanel(
         "Bilicurve",
         conditionalPanel(
-        condition = "(input.bilirisk != NA)",
-        plotOutput("bilicurve", height = "650px", width = "100%"),
-        screenshotButton(label = "Figuur opslaan", id = "bilicurve"),
-        hr(),
-        #h4("Ingegeven waarden"),
-        DT::dataTableOutput("time_output1"),
-        hr(),
-        h4("Disclaimer", style = "font-size:12px;"),
-        p(
-          "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Kemper AR, Newman TB, Slaughter JL, et al. Clinical Practice Guideline Revision: Management of Hyperbilirubinemia in the Newborn Infant 35 or More Weeks of Gestation. Pediatrics. 2022;150(3):e2022058859. doi:10.1542/peds.2022-058859 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. De Luca D, Romagnoli C, Tiberi E, Zuppa AA, Zecca E. Skin bilirubin nomogram for the first 96 h of life in a European normal healthy newborn population, obtained with multiwavelength transcutaneous bilirubinometry. Acta Paediatr. 2008 Feb;97(2):146-50. doi: 10.1111/j.1651-2227.2007.00622.x. PMID: 18254903. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
-          ,
-          style = "font-size:12px;"
-        ),
-        hr()
-      )),
+          condition = "(input.bilirisk != NA)",
+          plotOutput("bilicurve", height = "650px", width = "100%"),
+          screenshotButton(label = "Figuur opslaan", id = "bilicurve"),
+          hr(),
+          #h4("Ingegeven waarden"),
+          DT::dataTableOutput("time_output1"),
+          hr(),
+          h4("Disclaimer", style = "font-size:12px;"),
+          p(
+            "This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Kemper AR, Newman TB, Slaughter JL, et al. Clinical Practice Guideline Revision: Management of Hyperbilirubinemia in the Newborn Infant 35 or More Weeks of Gestation. Pediatrics. 2022;150(3):e2022058859. doi:10.1542/peds.2022-058859 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. De Luca D, Romagnoli C, Tiberi E, Zuppa AA, Zecca E. Skin bilirubin nomogram for the first 96 h of life in a European normal healthy newborn population, obtained with multiwavelength transcutaneous bilirubinometry. Acta Paediatr. 2008 Feb;97(2):146-50. doi: 10.1111/j.1651-2227.2007.00622.x. PMID: 18254903. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
+            ,
+            style = "font-size:12px;"
+          ),
+          hr()
+        )),
       tabPanel(
         "Maak een keuze",
         img(
@@ -549,7 +549,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         afname_GET_POSIX <-
           as.POSIXct(unlist(strsplit(afname_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
         PML_geboorte_GET <- calc(unlist(strsplit(PML_geboorte_GET, split = ",")))
-          
+        
         PT_start_GET_POSIX <-
           as.POSIXct(unlist(strsplit(PT_start_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
         PT_stop_GET_POSIX <-
@@ -745,40 +745,40 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       # read the dataframe that wil be used for plotting LR, MR, HR
       PML_geboorte <- df2 %>% pull(`PML bij geboorte`) %>% first()
       if (input$bili_risk == "nee"){
-      highlight = NA
-      df <- read_tsv("./data/all_norisk.tsv")
-      df <- df %>% filter(!is.na(bilirubin))
-      df <- df %>% arrange(annotation,time)
-      df <- df %>% 
-        group_by(annotation) %>%
-        filter(!duplicated(bilirubin))
-      max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
-      df <- rbind(max_vals, df)
-      if (PML_geboorte < 36 && PML_geboorte >= 35){
-      #df <- df %>% filter(annotation == "35w_norisk")
-      df$annotation <- sub("35w_norisk", "35 weeks", df$annotation)
-      highlight <- "35 weeks"
-      } else if (PML_geboorte < 37 && PML_geboorte >= 36){
-        #df <- df %>% filter(annotation == "36w_norisk")
-        df$annotation <- sub("36w_norisk", "36 weeks", df$annotation)
-        highlight <- "36 weeks"
-      } else if (PML_geboorte < 38 && PML_geboorte >= 37){
-        #df <- df %>% filter(annotation == "37w_norisk")
-        df$annotation <- sub("37w_norisk", "37 weeks", df$annotation)
-        highlight <- "37 weeks"
-      } else if (PML_geboorte < 39 && PML_geboorte >= 38){
-        #df <- df %>% filter(annotation == "38w_norisk")
-        df$annotation <- sub("38w_norisk", "38 weeks", df$annotation)
-        highlight <- "38 weeks"
-      } else if (PML_geboorte < 40 && PML_geboorte >= 39){
-        #df <- df %>% filter(annotation == "39w_norisk")
-        df$annotation <- sub("39w_norisk", "39 weeks", df$annotation)
-        highlight <- "39 weeks"
-      } else if (PML_geboorte >= 40){
-        #df <- df %>% filter(annotation == "40w_norisk")
-        df$annotation <- sub("40w_norisk", ">= 40 weeks", df$annotation)
-        highlight <- ">= 40 weeks"
-      }
+        highlight = NA
+        df <- read_tsv("./data/all_norisk.tsv")
+        df <- df %>% filter(!is.na(bilirubin))
+        df <- df %>% arrange(annotation,time)
+        df <- df %>% 
+          group_by(annotation) %>%
+          filter(!duplicated(bilirubin))
+        max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
+        df <- rbind(max_vals, df)
+        if (PML_geboorte < 36 && PML_geboorte >= 35){
+          #df <- df %>% filter(annotation == "35w_norisk")
+          df$annotation <- sub("35w_norisk", "35 weeks", df$annotation)
+          highlight <- "35 weeks"
+        } else if (PML_geboorte < 37 && PML_geboorte >= 36){
+          #df <- df %>% filter(annotation == "36w_norisk")
+          df$annotation <- sub("36w_norisk", "36 weeks", df$annotation)
+          highlight <- "36 weeks"
+        } else if (PML_geboorte < 38 && PML_geboorte >= 37){
+          #df <- df %>% filter(annotation == "37w_norisk")
+          df$annotation <- sub("37w_norisk", "37 weeks", df$annotation)
+          highlight <- "37 weeks"
+        } else if (PML_geboorte < 39 && PML_geboorte >= 38){
+          #df <- df %>% filter(annotation == "38w_norisk")
+          df$annotation <- sub("38w_norisk", "38 weeks", df$annotation)
+          highlight <- "38 weeks"
+        } else if (PML_geboorte < 40 && PML_geboorte >= 39){
+          #df <- df %>% filter(annotation == "39w_norisk")
+          df$annotation <- sub("39w_norisk", "39 weeks", df$annotation)
+          highlight <- "39 weeks"
+        } else if (PML_geboorte >= 40){
+          #df <- df %>% filter(annotation == "40w_norisk")
+          df$annotation <- sub("40w_norisk", ">= 40 weeks", df$annotation)
+          highlight <- ">= 40 weeks"
+        }
       } else if (input$bili_risk == "ja"){
         highlight = NA
         df <- read_tsv("./data/all_risk.tsv")
@@ -806,7 +806,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           #df <- df %>% filter(annotation == "38w_risk")
           df$annotation <- sub("38w_risk", ">= 38 weeks", df$annotation)
           highlight <- ">= 38 weeks"          
-      }
+        }
       }
       
       df <-
@@ -884,7 +884,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         PT_ggplot <- NA
       }
       
-
+      
       
       g <-
         ggplot(df, aes(y = biliwaarde, x = `tijd in dagen`, col = annotation)) +  geom_vline(
@@ -914,17 +914,17 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           data = df %>% filter(annotation == "sample", biliwaarde > 0),
           aes(y = biliwaarde, x = `tijd in dagen`, col = annotation),
           size = 3
-        ) + labs(subtitle = paste0("Â°", df2 %>% pull(geboorte) %>% first())) + theme(
+        ) + labs(subtitle = paste0("°", df2 %>% pull(geboorte) %>% first())) + theme(
           text = element_text(size = 20),
           legend.position = "bottom",
           legend.box = "horizontal",
           legend.title = element_blank()
         ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7,8,9,10,11,12,13,14),
                                limits = c(0, 14.1)) +
-         scale_y_continuous(breaks = seq(0,22.5, by = 2),
-                             limits = c(5, 22.5)) +
+        scale_y_continuous(breaks = seq(0,22.5, by = 2),
+                           limits = c(5, 22.5)) +
         geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot
-
+      
       g + guides(color = guide_legend(nrow = 5))
     } else{
       
@@ -1066,5 +1066,4 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
 
 # Run the application
 shinyApp(ui = ui, server = server)
-
 
