@@ -20,6 +20,7 @@ RUN R -e 'install.packages(c(\
               "shinyTime", \
               "shinythemes", \
               "DT", \
+              "Cairo", \
               "shinyscreenshot", \
               "ggrepel" \
             ), \
@@ -29,7 +30,10 @@ RUN R -e 'install.packages(c(\
 
 # copy the app directory into the image
 COPY ./* /srv/shiny-server/
-COPY ./www/* /srv/shiny-server/www
-
+RUN mkdir -p /srv/shiny-server/www/
+RUN mkdir -p /srv/shiny-server/data/
+COPY ./www/* /srv/shiny-server/www/
+COPY ./data/* /srv/shiny-server/data/
+COPY ./www/* /www/
 # run app
 CMD ["/usr/bin/shiny-server"]
