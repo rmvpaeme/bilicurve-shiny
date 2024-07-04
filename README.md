@@ -39,7 +39,7 @@ Examples:
 
 ## Installation 
 
-The application can be reached at rubenvp.shinyapps.io/bilicurve or can be self-hosted.
+The application can be reached at [https://bili.ugent.be/](https://bili.ugent.be/) or [https://rubenvp.shinyapps.io/bilicurve](https://rubenvp.shinyapps.io/bilicurve) or can be self-hosted.
 
 Selfhosting of the shiny application is possible through Docker:
 
