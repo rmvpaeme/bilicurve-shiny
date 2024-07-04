@@ -25,7 +25,7 @@ Manual input allows three timepoints. However, unlimited time points can be ente
 2. For the term (`&prematuur=nee`) chart, the date/hour or birth (`geboorte_GET=2023-11-22%2010:00:00`) + date/hour of sampling (`afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00`), bilirubin levels (`&bili_GET=10,9`) and the gestational age at birth (`&PML_geboorte_GET=37+1/7`) are required.
 
 Additionally, the use of phototherapy can be annotated on the graph through advanced settings (`&PT_start_GET` and `&PT_stop_GET`). 
-- For the term graph, a timepoint (yyy-mm-dd hh:mm) needs to be provided. 
+- For the term graph, a timepoint (yyyy-mm-dd hh:mm) needs to be provided. 
 - For the preterm graph, the gestational age at the moment of phototherapy start and stop needs to be given (see examples below) 
 
 The length of both (start and stop) parameters need to be equal (i.e. 2 start and 2 stop points). If for example phototherapy was started but not stopped, 'NA' can be used instead (`&PT_stop_GET=2023-11-23%2015:00:00,NA`). 
