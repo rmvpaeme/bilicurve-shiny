@@ -15,6 +15,7 @@ library(ggrepel)
 library(DT)
 library(Cairo)
 library(shinyscreenshot)
+library(cowplot)
 
 # Define UI
 ui <- fluidPage(
@@ -199,6 +200,7 @@ ui <- fluidPage(
             textInput("bili_GET", "Bilirubine in mg/dL in CSV (beide curven)", value = NA),
             textInput("PT_start_GET", "Fototherapie start datum+uur in CSV ", value = NA),
             textInput("PT_stop_GET", "Fototherapie stop datum+uur in CSV ", value = NA),
+            textInput("PT_aantalLampen_GET", "Aantal lampen bij fototherapie in CSV ", value = NA)
           )
         ),
         tabPanel(
@@ -461,6 +463,9 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
     if (!is.null(query[['PT_stop_GET']])) {
       updateTextInput(session, "PT_stop_GET", value = query[['PT_stop_GET']])
     }
+    if (!is.null(query[['PT_aantalLampen_GET']])) {
+      updateTextInput(session, "PT_aantalLampen_GET", value = query[['PT_aantalLampen_GET']])
+    }
     if (!is.null(query[['PML_geboorte_GET']])) {
       updateTextInput(session, "PML_geboorte_GET", value = query[['PML_geboorte_GET']])
     }
@@ -505,11 +510,18 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       #PML_GET <- c("23+1/7,24+1/7")
       PML_GET <- as.character(input$PML_GET)
       #PT_start_GET <- c("2023-11-23 11:00:00,2023-11-24 12:00:00,2023-11-25 12:00:00")
+      #PT_start_GET <- c("24+1/7,25+1/7,26+1/7,27+1/7")
+      #PT_start_GET <- c("24+3/7,24+5/7,24+6/7,25+0/7,25+0/7,25+2/7,25+3/7,25+6/7,26+0/7,26+1/7")
       #PT_start_GET  <- NA
       PT_start_GET <- as.character(input$PT_start_GET)
+      #PT_aantalLampen_GET <- c("2,1,1,2")
+      #PT_aantalLampen_GET <- c("1,1,2,2,3,1,2,1,3,2")
+      PT_aantalLampen_GET <- as.character(input$PT_aantalLampen_GET)
       #PT_stop_GET <- NA
       PT_stop_GET <- as.character(input$PT_stop_GET)
       #PT_stop_GET <- c("2023-11-23 13:10:00,2023-11-24 12:20:00,2023-11-25 15:20:00")
+      #PT_stop_GET <- c("24+2/7,25+2/7,26+2/7,27+2/7")
+      #PT_stop_GET <- c("24+5/7,24+6/7,24+6/7,25+0/7,25+0/7,25+3/7,25+4/7,25+6/7,26+0/7,26+1/7")
       annotation <- "sample"
       
       if (input$prematuur == "nee") {
@@ -571,7 +583,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
             biliwaarde = as.double(bili),
             `PML bij geboorte` = as.double(PML_geboorte_GET),
             annotation = "sample"
-          )  %>% filter(`tijd in dagen` < 10)  %>% select(geboorte,
+          )   %>% select(geboorte,
                                                           afnamemoment,
                                                           `tijd in uren`,
                                                           `tijd in dagen`,
@@ -584,13 +596,19 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         
         PT_start_GET_split  <- as.character(unlist(strsplit(PT_start_GET, split = ",")))
         PT_stop_GET_split  <- as.character(unlist(strsplit(PT_stop_GET, split = ",")))
-        if ((length(PT_start_GET_split) == length(PT_stop_GET_split))) {
-          
+        PT_aantalLampen_GET_split  <- as.character(unlist(strsplit(PT_aantalLampen_GET, split = ",")))
+        #if ((length(PT_start_GET_split) == length(PT_stop_GET_split))) {
+        if (all(sapply(list(length(PT_start_GET_split),length(PT_stop_GET_split),length(PT_aantalLampen_GET_split)), function(x) x == length(PT_aantalLampen_GET_split)))) { 
           df_PT <- tibble(PT_start = PT_start_GET_split,
-                          PT_stop = PT_stop_GET_split)
+                          PT_stop = PT_stop_GET_split, 
+                          PT_aantalLampen = PT_aantalLampen_GET_split)
+          df_PT <- df_PT %>% rowwise() %>%
+            mutate(PT_start = calc(PT_start)) %>%
+            mutate(PT_stop = calc(PT_stop) +0.035)
         } else {
           df_PT <- tibble(PT_start = NA,
-                          PT_stop = NA)
+                          PT_stop = NA, 
+                          PT_aantalLampen = NA)
         }
         
         df2 <- tibble(time_HR = NA,
@@ -908,6 +926,10 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       df_PT <- newData()$df_PT
       if ((length(input$PT_start_GET) == length(input$PT_stop_GET)) &&
           (sum(!is.na(input$PT_stop_GET)) == sum(!is.na(input$PT_start_GET)))) {
+        df_PT$PT_aantalLampen_col <- gsub("1", "#88C0D0", df_PT$PT_aantalLampen)
+        df_PT$PT_aantalLampen_col <- gsub("2", "#81A1C1", df_PT$PT_aantalLampen_col)
+        df_PT$PT_aantalLampen_col <- gsub("3", "#5E81AC", df_PT$PT_aantalLampen_col)
+        
         PT_ggplot <- annotate(
           geom = "rect",
           xmin = c(as.numeric(df_PT$PT_start)),
@@ -915,27 +937,64 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           ymin = rep(-Inf, length(df_PT$PT_start)),
           ymax = rep(Inf, length(df_PT$PT_start)),
           fill = "orange",
+          #fill = c(as.character(df_PT$PT_aantalLampen_col)),
           alpha = 0.2
         )
+
+        p2 <- ggplot(
+          df_PT
+        ) + theme_bw() +
+          scale_x_continuous(
+            limits = c(23, 36),
+            minor_breaks = seq(
+              from = 1,
+              to = 36,
+              by = 1 / 7
+            ),
+            breaks = 1:36
+          ) + geom_point(aes(x = as.numeric(PT_start), y = as.numeric(PT_aantalLampen))) + 
+          geom_line(aes(x = as.numeric(PT_start), y = as.numeric(PT_aantalLampen))) +
+          #annotate(
+          #  geom = "rect",
+          #  xmin = c(as.numeric(df_PT$PT_start)),
+          #  xmax = c(as.numeric(df_PT$PT_stop)),
+          #  ymin = as.numeric(df_PT$PT_aantalLampen),
+          #  ymax = as.numeric(df_PT$PT_aantalLampen) +1,
+          #  fill = c(as.character(df_PT$PT_aantalLampen_col)),
+          #  alpha = 0.4
+          #) +
+          labs(caption = "orange = initiate phototherapy, red = exchange transfusion",
+               x = "gestational age (week)",
+               y = "phototherapy intensity") +
+          theme(
+            text = element_text(size = 20),
+            legend.position = "bottom",
+            legend.box = "horizontal",
+            legend.title = element_blank()
+          ) 
+        
       } else {
         PT_ggplot <- NA
+        p2 <- NA
       }
       
-      ggplot(
+
+      p1 <- ggplot(
         preterm_df %>% filter(biliwaarde > 0),
         aes(x = `postmenstruele leeftijd`, y = biliwaarde)
       ) +
         geom_point(size = 3,
                    color = "darkgreen",
-                   alpha = 0.5) + ylim(0, 25) +
+                   alpha = 0.5) + ylim(0, 25) + geom_line(color = "darkgreen",
+                   alpha = 0.5)+
         scale_x_continuous(
-          limits = c(23, 35),
+          limits = c(23, 36),
           minor_breaks = seq(
             from = 1,
-            to = 35,
+            to = 36,
             by = 1 / 7
           ),
-          breaks = 1:35
+          breaks = 1:36
         ) + theme_bw() +
         theme(
           text = element_text(size = 20),
@@ -946,7 +1005,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         labs(caption = "orange = initiate phototherapy, red = exchange transfusion",
              x = "gestational age (week)",
              y = "TSB (mg/dL)") +
-        PT_ggplot +
+        PT_ggplot + 
         annotate(
           geom = "rect",
           xmin = -Inf,
@@ -994,6 +1053,60 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         ) +
         annotate(
           geom = "rect",
+          xmin = 35+(0/7),
+          xmax = 35+(2/7),
+          ymin = 12,
+          ymax = 14,
+          fill = "orange",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
+          xmin = 35+(2/7),
+          xmax = 35+(3/7),
+          ymin = 14.5,
+          ymax = 17,
+          fill = "orange",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
+          xmin = 35+(3/7),
+          xmax = 35+(4/7),
+          ymin = 14.5,
+          ymax = 17,
+          fill = "orange",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
+          xmin = 35+(4/7),
+          xmax = 35+(5/7),
+          ymin = 16,
+          ymax = 18.5,
+          fill = "orange",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
+          xmin = 35+(5/7),
+          xmax = 35+(6/7),
+          ymin = 16.2,
+          ymax = 18.8,
+          fill = "orange",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
+          xmin = 35+(6/7),
+          xmax = 35+(7/7),
+          ymin = 16.4,
+          ymax = 19,
+          fill = "orange",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
           xmin = -Inf,
           xmax = 28,
           ymin = 11,
@@ -1036,7 +1149,70 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           ymax = 19,
           fill = "red",
           alpha = 0.5
+        )+
+        annotate(
+          geom = "rect",
+          xmin = 35+(0/7),
+          xmax = 35+(2/7),
+          ymin = 17,
+          ymax = 19,
+          fill = "red",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
+          xmin = 35+(2/7),
+          xmax = 35+(3/7),
+          ymin = 18.5,
+          ymax = 21.5,
+          fill = "red",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
+          xmin = 35+(3/7),
+          xmax = 35+(4/7),
+          ymin = 20,
+          ymax = 23,
+          fill = "red",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
+          xmin = 35+(4/7),
+          xmax = 35+(5/7),
+          ymin = 21,
+          ymax = 24.5,
+          fill = "red",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
+          xmin = 35+(5/7),
+          xmax = 35+(6/7),
+          ymin = 21.2,
+          ymax = 24.8,
+          fill = "red",
+          alpha = 0.3
+        ) +
+        annotate(
+          geom = "rect",
+          xmin = 35+(6/7),
+          xmax = 35+(7/7),
+          ymin = 21.5,
+          ymax = 25,
+          fill = "red",
+          alpha = 0.3
         )
+      p1
+      #plot_grid( p1,
+      #           # here you add the percentage
+      #           p2,
+      #           align = 'v',
+      #           #labels = c("A", "B"),
+      #           hjust = -1,
+      #           nrow = 2, rel_heights = c(0.8,0.2))
+
     }
   })
 }
