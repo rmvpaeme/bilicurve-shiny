@@ -227,7 +227,7 @@ ui <- fluidPage(
           hr(),
           h4("Disclaimer", style = "font-size:12px;"),
           p(
-            "Authors: Ruben Van Paemel, Kris De Coen, Sophie Vanhaesebrouck (NICU Ghent University Hospital). This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. Source: Kemper AR, Newman TB, Slaughter JL, et al. Clinical Practice Guideline Revision: Management of Hyperbilirubinemia in the Newborn Infant 35 or More Weeks of Gestation. Pediatrics. 2022;150(3):e2022058859. doi:10.1542/peds.2022-058859 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. De Luca D, Romagnoli C, Tiberi E, Zuppa AA, Zecca E. Skin bilirubin nomogram for the first 96 h of life in a European normal healthy newborn population, obtained with multiwavelength transcutaneous bilirubinometry. Acta Paediatr. 2008 Feb;97(2):146-50. doi: 10.1111/j.1651-2227.2007.00622.x. PMID: 18254903. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
+            "Authors: Ruben Van Paemel, Kris De Coen, Sophie Vanhaesebrouck (NICU Ghent University Hospital). This tool has not been extensively tested, so verify with the original curves before initiating therapy (included above). For questions or suggestions or bugs, e-mail ruben.vanpaemel@ugent.be. For infants born close to 35 weeks, cut-offs from the term graph were added, where the upper border of the box = infants > 35 weeks with no risk factor and the lower border = infants > 35 weeks with risk factors (each box represents 1 day after 35 weeks, ending at 35+6/7). Source: Kemper AR, Newman TB, Slaughter JL, et al. Clinical Practice Guideline Revision: Management of Hyperbilirubinemia in the Newborn Infant 35 or More Weeks of Gestation. Pediatrics. 2022;150(3):e2022058859. doi:10.1542/peds.2022-058859 and Maisels MJ, Watchko JF, Bhutani VK, Stevenson DK. An approach to the management of hyperbilirubinemia in the preterm infant less than 35 weeks of gestation. Journal of Perinatology 2012;32:660-4. De Luca D, Romagnoli C, Tiberi E, Zuppa AA, Zecca E. Skin bilirubin nomogram for the first 96 h of life in a European normal healthy newborn population, obtained with multiwavelength transcutaneous bilirubinometry. Acta Paediatr. 2008 Feb;97(2):146-50. doi: 10.1111/j.1651-2227.2007.00622.x. PMID: 18254903. The code and documentation is available at https://github.com/rmvpaeme/bilicurve-shiny ."
             ,
             style = "font-size:12px;"
           ),
@@ -686,6 +686,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
     else {
       if (!is.null(inFile_aterm) && input$prematuur == "nee") {
         df <- readxl::read_excel(inFile_aterm$datapath, skip = 2)
+        df$`PML bij geboorte` <- as.character(df$`PML bij geboorte`)
         df <- bind_rows(df, newData()$df)
       }
       else if (!is.null(inFile_preterm) &&
@@ -726,17 +727,24 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
   
   
   output$bilicurve <- renderPlot({
+
     if (input$prematuur == "nee") {
+      df <- tibble(`tijd in dagen` = NA, time = NA, biliwaarde = NA, bilirubin = NA, annotation = NA, highlight = NA)
+      
       inFile <- input$file_aterm
       if (is.null(inFile)) {
         df2 <- newData()$df
       }
       else {
+        #df2 <- readxl::read_excel("/Users/rmvpaeme/Downloads/Indicatie voor fototherapie-6.xlsx", skip = 2)
         df2 <- readxl::read_excel(inFile$datapath, skip = 2)
+        df2$`PML bij geboorte` <- as.character(df2$`PML bij geboorte`)
         df2 <- bind_rows(df2, newData()$df)
       }
+      ggplot_text <- "Loading..."
       
-      # read the dataframe that wil be used for plotting LR, MR, HR
+      
+      # read the dataframe 
       PML_geboorte <- df2 %>% pull(`PML bij geboorte`) %>% first()
       if (input$bili_risk == "nee"){
         highlight = NA
@@ -879,7 +887,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         PT_ggplot <- geom_rect(data = df_PT, aes(xmin = c(as.numeric(diff_days_PT_start)), xmax = c(as.numeric(diff_days_PT_stop)), 
                                                  ymin = -Inf, ymax =  Inf, fill = PT_aantalLampen), 
                                alpha = 0.7, inherit.aes = FALSE) 
-        PT_legend <-  scale_fill_manual(name = "phototherapy intensity", values = c("1" = "#A3BE8C", "2" = "#EBCB8B", "3" = "#BF616A"))
+        PT_legend <-  scale_fill_manual(labels = c("1 lamp", "2 lamps", "3 lamps"), name = "phototherapy intensity", values = c("1" = "#A3BE8C", "2" = "#EBCB8B", "3" = "#BF616A"))
         
         
       } else {
@@ -920,16 +928,18 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         geom_point(
           data = df %>% filter(annotation == "sample", biliwaarde > 0),
           aes(y = biliwaarde, x = `tijd in dagen`, col = annotation),
-          size = 3
-        ) + labs(subtitle = paste0(ggplot_text, "\n", "°", df2 %>% pull(geboorte) %>% first()) ) + theme(
+          size = 3, color = "#5E81AC"
+        ) + geom_line(data = df %>% filter(annotation == "sample", biliwaarde > 0), aes(group = annotation), color = "#5E81AC") + labs(color = "legend", subtitle = paste0(ggplot_text, "\n", "°", df2 %>% pull(geboorte) %>% first()) ) + theme(
           text = element_text(size = 20),
           legend.position = "bottom",
+          legend.direction="vertical",
           #legend.box = "horizontal",
           #legend.title = element_blank()
         ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7,8,9,10,11,12,13,14),
                                limits = c(0, 14.1)) +
         scale_y_continuous(breaks = seq(0,22.5, by = 2),
                            limits = c(5, 22.5)) +
+        scale_color_manual(values = c( "#4C566A", "#88C0D0")) +
         theme(plot.subtitle=element_text(size=18)) +
         geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot + PT_legend
       
@@ -961,7 +971,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         #   fill = c(as.character(df_PT$PT_aantalLampen_col)),
         #   alpha = 0.5
         # ) 
-        PT_legend <-  scale_fill_manual(name = "phototherapy intensity", values = c("1" = "#A3BE8C", "2" = "#EBCB8B", "3" = "#BF616A"))
+        PT_legend <-  scale_fill_manual(labels = c("1 lamp", "2 lamps", "3 lamps"), name = "phototherapy intensity", values = c("1" = "#A3BE8C", "2" = "#EBCB8B", "3" = "#BF616A"))
 
         # p2 <- ggplot(
         #   df_PT
@@ -1010,9 +1020,9 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         aes(x = `postmenstruele leeftijd`, y = biliwaarde)
       ) +
         geom_point(size = 3,
-                   color = "darkgreen",
-                   alpha = 0.5) + ylim(0, 25) + geom_line(color = "darkgreen",
-                   alpha = 0.5)+
+                   color = "#5E81AC",
+                   alpha = 1) + ylim(0, 25) + geom_line(color = "#5E81AC",
+                   alpha = 1)+
         scale_x_continuous(
           limits = c(23, 36),
           minor_breaks = seq(
@@ -1030,8 +1040,10 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         ) +
         labs(caption = "shaded area = consider phototherapy (bottom) or exchange transfusion (top)",
              x = "gestational age (week)",
-             y = "TSB (mg/dL)") +
+             y = "total serum bilirubin (mg/dL)") +
         PT_ggplot + PT_legend +
+        geom_vline(xintercept = 35, linetype="dashed", 
+                   color = "grey", size=0.8, ) +annotate(geom = "text", x=35, y=1, vjust = -0.2, label= "term values", angle = "90",  color = "gray20") +
         annotate(
           geom = "rect",
           xmin = -Inf,
@@ -1276,7 +1288,8 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         )
 
 
-    }
+    } 
+    
   })
 }
 
