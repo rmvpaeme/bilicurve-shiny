@@ -34,7 +34,7 @@ Examples:
 - Term: http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PML_geboorte_GET=37.28
 - Preterm: http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&naam=testbaby&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9
 - Term with phototherapy:  http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&geboorte_GET=2023-11-22%2010:00:00&afname_GET=2023-11-23%2010:00:00,2023-11-24%2010:00:00&bili_GET=10,9&PT_start_GET=2023-11-23%2011:00:00,2023-11-24%2012:00:00&PT_stop_GET=2023-11-23%2015:00:00,2023-11-24%2014:00:00&PML_geboorte_GET=37.28
-- Preterm with phototherapy: http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9&PT_start_GET=23.14,24.14&PT_stop_GET=23.90,24.90
+- Preterm with phototherapy: http://rubenvp.shinyapps.io/bilicurve/?advanced=ja&prematuur=ja&PML_GET=23%2B1/7,24%2B1/7&bili_GET=10,9&PT_start_GET=23.14,24.14&PT_stop_GET=23.90,24.90&PT_aantalLampen_GET=1,2
 
 
 ## Installation 
