@@ -44,7 +44,7 @@ The application can be reached at [https://bili.ugent.be/](https://bili.ugent.be
 Selfhosting of the shiny application is possible through Docker:
 
 ```bash
-docker run -dp 0.0.0.0:3838:3838  rmvpaeme/bilicurve:0.3
+docker run -dp 0.0.0.0:3838:3838  rmvpaeme/bilicurve:0.4
 ```
 
 After installation, the shiny server can be accessed at
