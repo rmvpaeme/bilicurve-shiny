@@ -1121,21 +1121,11 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           fill = fill_PT, 
           alpha = 0.2
         ) +
+
         annotate(
           geom = "rect",
           xmin = 35+(3/7),
           xmax = 35+(4/7),
-          ymin = 14.5,
-          ymax = 17,
-          color = "grey30",
-          linetype = 3,
-          fill = fill_PT, 
-          alpha = 0.2
-        ) +
-        annotate(
-          geom = "rect",
-          xmin = 35+(4/7),
-          xmax = 35+(5/7),
           ymin = 16,
           ymax = 18.5,
           color = "grey30",
@@ -1145,8 +1135,8 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         ) +
         annotate(
           geom = "rect",
-          xmin = 35+(5/7),
-          xmax = 35+(6/7),
+          xmin = 35+(4/7),
+          xmax = 35+(5/7),
           ymin = 16.2,
           ymax = 18.8,
           color = "grey30",
@@ -1156,9 +1146,20 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         ) +
         annotate(
           geom = "rect",
+          xmin = 35+(5/7),
+          xmax = 35+(6/7),
+          ymin = 16.4,
+          ymax = 19,
+          color = "grey30",
+          linetype = 3,
+          fill = fill_PT, 
+          alpha = 0.2
+        ) +
+        annotate(
+          geom = "rect",
           xmin = 35+(6/7),
           xmax = 35+(7/7),
-          ymin = 16.4,
+          ymin = 16.5,
           ymax = 19,
           color = "grey30",
           linetype = 3,
