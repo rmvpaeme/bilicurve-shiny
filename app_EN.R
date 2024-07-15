@@ -47,7 +47,7 @@ ui <- fluidPage(
               value = Sys.Date()
             ),
             textInput("birthtime", "Birth Time", value = "00:01"),
-            textInput("PML_birth", "PML at birth (format = \"36+1/7\"). Error for values < 35+0/7.", value = NA),
+            textInput("GA_birth", "GA at birth (format = \"36+1/7\"). Error for values < 35+0/7.", value = NA),
             fileInput(
               'file_term',
               'Upload previously saved table for term',
@@ -133,7 +133,7 @@ ui <- fluidPage(
           conditionalPanel(
             condition = "(input.premature == 'yes' && input.advanced == 'no')",
             h4("Sampling Moment 1"),
-            textInput("PML1", "PML (format = \"23+1/7\")", value = "23+1/7"),
+            textInput("GA1", "GA (format = \"23+1/7\")", value = "23+1/7"),
             numericInput(
               "biliprem1",
               "Bilirubin in mg/dL",
@@ -143,7 +143,7 @@ ui <- fluidPage(
             ),
             hr(),
             h4("Sampling Moment 2"),
-            textInput("PML2", "PML", value = "23+1/7"),
+            textInput("GA2", "GA", value = "23+1/7"),
             numericInput(
               "biliprem2",
               "Bilirubin in mg/dL",
@@ -153,7 +153,7 @@ ui <- fluidPage(
             ),
             hr(),
             h4("Sampling Moment 3"),
-            textInput("PML3", "PML", value = "23+1/7"),
+            textInput("GA3", "GA", value = "23+1/7"),
             numericInput(
               "biliprem3",
               "Bilirubin in mg/dL",
@@ -185,8 +185,8 @@ ui <- fluidPage(
             ),
             textInput("birth_GET", "Birthdate and time in CSV (only for curve > 35 weeks)", value = NA),
             textInput("sampling_GET", "Sampling date and time in CSV (only for curve > 35 weeks)", value = NA),
-            textInput("PML_birth_GET", "Postmenstrual age at birth (only for curve > 35 weeks)", value = NA),
-            textInput("PML_GET", "Postmenstrual age at sampling (only needed for curve < 35 weeks) in CSV", value = NA),
+            textInput("GA_birth_GET", "Postmenstrual age at birth (only for curve > 35 weeks)", value = NA),
+            textInput("GA_GET", "Postmenstrual age at sampling (only needed for curve < 35 weeks) in CSV", value = NA),
             textInput("bili_GET", "Bilirubin in mg/dL in CSV (both curves)", value = NA),
             textInput("PT_start_GET", "Phototherapy start date+time in CSV", value = NA),
             textInput("PT_stop_GET", "Phototherapy stop date+time in CSV", value = NA),
@@ -226,7 +226,7 @@ ui <- fluidPage(
       tabPanel(
         "Choose an Option",
         img(
-          src = 'melding.png',
+          src = 'notification.png',
           width = "600px",
           height = "600px"
         )),
@@ -321,9 +321,9 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         df_datetime %>% pull(birth) %>% first()
       updateDateInput(session, "birthdate", value = vals$initial_date)
       updateTextInput(session, "birthtime", value = strsplit(vals$initial_date, " ")[[1]][2])
-      PML_update <-
-        df_datetime %>% pull(`PML at birth`) %>% first()
-      updateTextInput(session, "PML_birth", value = PML_update)
+      GA_update <-
+        df_datetime %>% pull(`GA at birth`) %>% first()
+      updateTextInput(session, "GA_birth", value = GA_update)
       risk_update <- df_datetime %>% pull(`risk factors`) %>% first()
       updateSelectInput(session, "bili_risk", selected = risk_update)
     }
@@ -444,8 +444,8 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
     if (!is.null(query[['bili3']])) {
       updateTextInput(session, "bili3", value = query[['bili3']])
     }
-    if (!is.null(query[['PML_GET']])) {
-      updateTextInput(session, "PML_GET", value = query[['PML_GET']])
+    if (!is.null(query[['GA_GET']])) {
+      updateTextInput(session, "GA_GET", value = query[['GA_GET']])
     }
     if (!is.null(query[['PT_start_GET']])) {
       updateTextInput(session, "PT_start_GET", value = query[['PT_start_GET']])
@@ -456,8 +456,8 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
     if (!is.null(query[['PT_numLamps_GET']])) {
       updateTextInput(session, "PT_numLamps_GET", value = query[['PT_numLamps_GET']])
     }
-    if (!is.null(query[['PML_birth_GET']])) {
-      updateTextInput(session, "PML_birth_GET", value = query[['PML_birth_GET']])
+    if (!is.null(query[['GA_birth_GET']])) {
+      updateTextInput(session, "GA_birth_GET", value = query[['GA_birth_GET']])
     }
     
     name <- as.character(input$name)
@@ -492,13 +492,13 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
     if (input$advanced == "yes") {
       #birth_GET <- c("2023-11-22 10:00:00")
       birth_GET <- as.character(input$birth_GET)
-      PML_birth_GET <- as.character(input$PML_birth_GET)
+      GA_birth_GET <- as.character(input$GA_birth_GET)
       #sampling_GET <- c("2023-11-23 10:00:00,2023-11-24 10:00:00")
       sampling_GET <- as.character(input$sampling_GET)
       #bili_GET <- c("10,9")
       bili_GET <- as.character(input$bili_GET)
-      #PML_GET <- c("23+1/7,24+1/7")
-      PML_GET <- as.character(input$PML_GET)
+      #GA_GET <- c("23+1/7,24+1/7")
+      GA_GET <- as.character(input$GA_GET)
       #PT_start_GET <- c("2023-11-23 11:00:00,2023-11-24 12:00:00,2023-11-25 12:00:00")
       #PT_start_GET <- c("24+1/7,25+1/7,26+1/7,27+1/7")
       #PT_start_GET <- c("24+3/7,24+5/7,24+6/7,25+0/7,25+0/7,25+2/7,25+3/7,25+6/7,26+0/7,26+1/7")
@@ -517,7 +517,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           as.POSIXct(unlist(strsplit(birth_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
         sampling_GET_POSIX <-
           as.POSIXct(unlist(strsplit(sampling_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
-        PML_birth_GET <- calc(unlist(strsplit(PML_birth_GET, split = ",")))
+        GA_birth_GET <- calc(unlist(strsplit(GA_birth_GET, split = ",")))
         
         PT_start_GET_POSIX <-
           as.POSIXct(unlist(strsplit(PT_start_GET, split = ",")), format = "%Y-%m-%d %H:%M", tz = "UTC")
@@ -558,7 +558,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
             `time in hours` = as.double(diff_hours),
             `time in days` = as.double(diff_days),
             bili_value = as.double(bili),
-            `PML at birth` = as.double(PML_birth_GET),
+            `GA at birth` = as.double(GA_birth_GET),
             annotation = "sample"
           ) %>%
           dplyr::select(
@@ -566,7 +566,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
             samplingmoment,
             `time in hours`,
             `time in days`,
-            `PML at birth`,
+            `GA at birth`,
             bili_value,
             annotation
           )
@@ -607,17 +607,17 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
                       annotation = "sample")
         bili_GET_split <-
           as.numeric(unlist(strsplit(bili_GET, split = ",")))
-        PML_GET <-
-          as.character(unlist(strsplit(PML_GET, split = ",")))
-        preterm_df <- tibble(PML_GET = PML_GET,
+        GA_GET <-
+          as.character(unlist(strsplit(GA_GET, split = ",")))
+        preterm_df <- tibble(GA_GET = GA_GET,
                              biliprem = bili_GET_split)
         preterm_df <-
           preterm_df %>%
           rowwise() %>%
-          mutate(PML = calc(PML_GET))
+          mutate(GA = calc(GA_GET))
         preterm_df <-
           preterm_df %>%
-          mutate(`postmenstrual age` = PML,
+          mutate(`postmenstrual age` = GA,
                  bili_value = biliprem) %>%
           dplyr::select(`postmenstrual age`, bili_value) %>%
           filter(bili_value > 0)
@@ -659,14 +659,14 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
             bili7
           )),
           annotation = "sample",
-          `PML at birth` = input$PML_birth
+          `GA at birth` = input$GA_birth
         )
       list(df = df2)
     }
     else if (input$premature == "yes") {
       preterm_df <-
         tibble(
-          `postmenstrual age` = c(calc(input$PML1), calc(input$PML2), calc(input$PML3)),
+          `postmenstrual age` = c(calc(input$GA1), calc(input$GA2), calc(input$GA3)),
           bili_value = c(input$biliprem1, input$biliprem2, input$biliprem3)
         )
       list(df = preterm_df)
@@ -682,7 +682,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
     else {
       if (!is.null(inFile_term) && input$premature == "no") {
         df <- readxl::read_excel(inFile_term$datapath, skip = 2)
-        df$`PML at birth` <- as.character(df$`PML at birth`)
+        df$`GA at birth` <- as.character(df$`GA at birth`)
         df <- bind_rows(df, newData()$df)
       }
       else if (!is.null(inFile_preterm) &&
@@ -726,14 +726,14 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         df2 <- newData()$df
       } else {
         df2 <- readxl::read_excel(inFile$datapath, skip = 2)
-        df2$`PML at birth` <- as.character(df2$`PML at birth`)
+        df2$`GA at birth` <- as.character(df2$`GA at birth`)
         df2 <- bind_rows(df2, newData()$df)
       }
       
       ggplot_text <- "Loading..."
       
       # read the dataframe 
-      PML_birth <- df2 %>% pull(`PML at birth`) %>% first()
+      GA_birth <- df2 %>% pull(`GA at birth`) %>% first()
       if (input$bili_risk == "no") {
         highlight <- NA
         ggplot_text <- "No Hyperbilirubinemia Neurotoxicity Risk Factors"
@@ -746,22 +746,22 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         max_vals <- df %>% group_by(annotation) %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
         df <- rbind(max_vals, df)
         
-        if (PML_birth < 36 && PML_birth >= 35) {
+        if (GA_birth < 36 && GA_birth >= 35) {
           df$annotation <- sub("35w_norisk", "35 weeks", df$annotation)
           highlight <- "35 weeks"
-        } else if (PML_birth < 37 && PML_birth >= 36) {
+        } else if (GA_birth < 37 && GA_birth >= 36) {
           df$annotation <- sub("36w_norisk", "36 weeks", df$annotation)
           highlight <- "36 weeks"
-        } else if (PML_birth < 38 && PML_birth >= 37) {
+        } else if (GA_birth < 38 && GA_birth >= 37) {
           df$annotation <- sub("37w_norisk", "37 weeks", df$annotation)
           highlight <- "37 weeks"
-        } else if (PML_birth < 39 && PML_birth >= 38) {
+        } else if (GA_birth < 39 && GA_birth >= 38) {
           df$annotation <- sub("38w_norisk", "38 weeks", df$annotation)
           highlight <- "38 weeks"
-        } else if (PML_birth < 40 && PML_birth >= 39) {
+        } else if (GA_birth < 40 && GA_birth >= 39) {
           df$annotation <- sub("39w_norisk", "39 weeks", df$annotation)
           highlight <- "39 weeks"
-        } else if (PML_birth >= 40) {
+        } else if (GA_birth >= 40) {
           df$annotation <- sub("40w_norisk", ">= 40 weeks", df$annotation)
           highlight <- ">= 40 weeks"
         }
@@ -777,16 +777,16 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         max_vals <- df %>% group_by(annotation) %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
         df <- rbind(max_vals, df)
         
-        if (PML_birth < 36 && PML_birth >= 35) {
+        if (GA_birth < 36 && GA_birth >= 35) {
           df$annotation <- sub("35w_risk", "35 weeks", df$annotation)
           highlight <- "35 weeks"
-        } else if (PML_birth < 37 && PML_birth >= 36) {
+        } else if (GA_birth < 37 && GA_birth >= 36) {
           df$annotation <- sub("36w_risk", "36 weeks", df$annotation)
           highlight <- "36 weeks"
-        } else if (PML_birth < 38 && PML_birth >= 37) {
+        } else if (GA_birth < 38 && GA_birth >= 37) {
         df$annotation <- sub("37w_risk", "37 weeks", df$annotation)
         highlight <- "37 weeks"
-      } else if (PML_birth >= 38) {
+      } else if (GA_birth >= 38) {
         df$annotation <- sub("38w_risk", ">= 38 weeks", df$annotation)
         highlight <- ">= 38 weeks"          
       }
@@ -1004,21 +1004,11 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         fill = fill_PT, 
         alpha = 0.2
       ) +
+      
       annotate(
         geom = "rect",
         xmin = 35+(3/7),
         xmax = 35+(4/7),
-        ymin = 14.5,
-        ymax = 17,
-        color = "grey30",
-        linetype = 3,
-        fill = fill_PT, 
-        alpha = 0.2
-      ) +
-      annotate(
-        geom = "rect",
-        xmin = 35+(4/7),
-        xmax = 35+(5/7),
         ymin = 16,
         ymax = 18.5,
         color = "grey30",
@@ -1028,8 +1018,8 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       ) +
       annotate(
         geom = "rect",
-        xmin = 35+(5/7),
-        xmax = 35+(6/7),
+        xmin = 35+(4/7),
+        xmax = 35+(5/7),
         ymin = 16.2,
         ymax = 18.8,
         color = "grey30",
@@ -1039,9 +1029,20 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       ) +
       annotate(
         geom = "rect",
+        xmin = 35+(5/7),
+        xmax = 35+(6/7),
+        ymin = 16.4,
+        ymax = 19,
+        color = "grey30",
+        linetype = 3,
+        fill = fill_PT, 
+        alpha = 0.2
+      ) +
+      annotate(
+        geom = "rect",
         xmin = 35+(6/7),
         xmax = 35+(7/7),
-        ymin = 16.4,
+        ymin = 16.5,
         ymax = 19,
         color = "grey30",
         linetype = 3,
