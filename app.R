@@ -219,7 +219,7 @@ ui <- fluidPage(
         "Bilicurve",
         conditionalPanel(
           condition = "(input.bilirisk != NA)",
-          plotOutput("bilicurve", height = "650px", width = "100%"),
+          plotOutput("bilicurve", height = "750px", width = "100%"),
           screenshotButton(label = "Figuur opslaan", id = "bilicurve"),
           hr(),
           #h4("Ingegeven waarden"),
@@ -900,7 +900,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       #} else{ 
       #  highest_xlim <- 7
       #}
-      
+     
       g <-
         ggplot(df, aes(y = biliwaarde, x = `tijd in dagen`, col = annotation)) +  geom_vline(
           xintercept = last_intersect,
@@ -938,7 +938,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7,8,9,10,11,12,13,14),
                                limits = c(0, 14.1)) +
         scale_y_continuous(breaks = seq(0,22.5, by = 2),
-                           limits = c(5, 22.5)) +
+                           limits = c(0, 22.5)) +
         scale_color_manual(values = c( "#4C566A", "#88C0D0")) +
         theme(plot.subtitle=element_text(size=18)) +
         geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot + PT_legend
