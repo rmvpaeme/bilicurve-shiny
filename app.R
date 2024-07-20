@@ -900,7 +900,19 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       #} else{ 
       #  highest_xlim <- 7
       #}
-     
+
+      if (df %>% filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% min() > 6) {
+        lowest_ylim <- 6
+      } else{ 
+        lowest_ylim <- df %>% filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% min() 
+      }
+
+      if (df %>% filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% max() < 22.5) {
+        highest_ylim <- 22.5
+      } else{ 
+        highest_ylim <- df %>% filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% max() 
+      }      
+      
       g <-
         ggplot(df, aes(y = biliwaarde, x = `tijd in dagen`, col = annotation)) +  geom_vline(
           xintercept = last_intersect,
@@ -937,8 +949,8 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           #legend.title = element_blank()
         ) + scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7,8,9,10,11,12,13,14),
                                limits = c(0, 14.1)) +
-        scale_y_continuous(breaks = seq(0,22.5, by = 2),
-                           limits = c(0, 22.5)) +
+        scale_y_continuous(breaks = seq(0,30, by = 2),
+                           limits = c(lowest_ylim, highest_ylim)) +
         scale_color_manual(values = c( "#4C566A", "#88C0D0")) +
         theme(plot.subtitle=element_text(size=18)) +
         geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot + PT_legend
