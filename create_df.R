@@ -37,17 +37,17 @@ for(nbr in 1:length(files)){
 
 
 all_data$bilirubin <- as.double(all_data$bilirubin)
-max_vals <- all_data %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 360) %>% filter(!is.na(annotation))
+max_vals <- all_data %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 360) %>% dplyr::filter(!is.na(annotation))
 all_data <- rbind(max_vals, all_data)
 #write_tsv(all_data, "./data/all_norisk.tsv")
 
 ggplot(all_data, aes(x = time/24, y = bilirubin, col = annotation)) + geom_line() + ylim(0,20) + xlim(0,16)
-all_data <- all_data %>% filter(annotation == "35w_norisk")
+all_data <- all_data %>% dplyr::filter(annotation == "35w_norisk")
 g <-
   ggplot(all_data, aes(y = bilirubin, x = time/24, col = annotation, linetype = annotation)) +
-  geom_line(data = all_data %>% filter(annotation != "sample"))  + theme_bw() + xlim(0, 7) + ylim(3, 25) + xlab("age in days") + ylab("bilirubin, mg/dL") +
+  geom_line(data = all_data %>% dplyr::filter(annotation != "sample"))  + theme_bw() + xlim(0, 7) + ylim(3, 25) + xlab("age in days") + ylab("bilirubin, mg/dL") +
   geom_point(
-    data = all_data %>% filter(annotation == "sample", bilirubin > 0),
+    data = all_data %>% dplyr::filter(annotation == "sample", bilirubin > 0),
     aes(y = bilirubin, x = time/24, col = annotation),
     size = 3
   ) + theme(

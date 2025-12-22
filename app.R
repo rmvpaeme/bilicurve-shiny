@@ -631,7 +631,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           mutate(PML = calc(PML_GET))
         preterm_df <-
           preterm_df %>% mutate(`postmenstruele leeftijd` = PML,
-                                biliwaarde = biliprem) %>% select(`postmenstruele leeftijd`, biliwaarde) %>% filter(biliwaarde > 0)
+                                biliwaarde = biliprem) %>% select(`postmenstruele leeftijd`, biliwaarde) %>% dplyr::filter(biliwaarde > 0)
         list(df = preterm_df, df_PT = df_PT)
       }
     } else if (input$prematuur == "nee") {
@@ -696,7 +696,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       }
     }
     
-    df <- df %>% filter(biliwaarde > 0)
+    df <- df %>% dplyr::filter(biliwaarde > 0)
     df <- df %>% mutate_if(is.numeric, ~ round(., 2))
     
     df$risicofactoren <- input$bili_risk
@@ -750,36 +750,36 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         highlight = NA
         ggplot_text <- "No Hyperbilirubinemia Neurotoxicity Risk Factors"
         df <- read_tsv("./data/all_norisk.tsv")
-        df <- df %>% filter(!is.na(bilirubin))
+        df <- df %>% dplyr::filter(!is.na(bilirubin))
         df <- df %>% arrange(annotation,time)
         df <- df %>% 
           group_by(annotation) %>%
-          filter(!duplicated(bilirubin))
-        max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
+          dplyr::filter(!duplicated(bilirubin))
+        max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% dplyr::filter(!is.na(annotation))
         df <- rbind(max_vals, df)
        
         if (PML_geboorte < 36 && PML_geboorte >= 35){
-          #df <- df %>% filter(annotation == "35w_norisk")
+          #df <- df %>% dplyr::filter(annotation == "35w_norisk")
           df$annotation <- sub("35w_norisk", "35 weeks", df$annotation)
           highlight <- "35 weeks"
         } else if (PML_geboorte < 37 && PML_geboorte >= 36){
-          #df <- df %>% filter(annotation == "36w_norisk")
+          #df <- df %>% dplyr::filter(annotation == "36w_norisk")
           df$annotation <- sub("36w_norisk", "36 weeks", df$annotation)
           highlight <- "36 weeks"
         } else if (PML_geboorte < 38 && PML_geboorte >= 37){
-          #df <- df %>% filter(annotation == "37w_norisk")
+          #df <- df %>% dplyr::filter(annotation == "37w_norisk")
           df$annotation <- sub("37w_norisk", "37 weeks", df$annotation)
           highlight <- "37 weeks"
         } else if (PML_geboorte < 39 && PML_geboorte >= 38){
-          #df <- df %>% filter(annotation == "38w_norisk")
+          #df <- df %>% dplyr::filter(annotation == "38w_norisk")
           df$annotation <- sub("38w_norisk", "38 weeks", df$annotation)
           highlight <- "38 weeks"
         } else if (PML_geboorte < 40 && PML_geboorte >= 39){
-          #df <- df %>% filter(annotation == "39w_norisk")
+          #df <- df %>% dplyr::filter(annotation == "39w_norisk")
           df$annotation <- sub("39w_norisk", "39 weeks", df$annotation)
           highlight <- "39 weeks"
         } else if (PML_geboorte >= 40){
-          #df <- df %>% filter(annotation == "40w_norisk")
+          #df <- df %>% dplyr::filter(annotation == "40w_norisk")
           df$annotation <- sub("40w_norisk", ">= 40 weeks", df$annotation)
           highlight <- ">= 40 weeks"
         }
@@ -787,28 +787,28 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         highlight = NA
         ggplot_text <- "One or More Hyperbilirubinemia Neurotoxicity Risk Factors"
         df <- read_tsv("./data/all_risk.tsv")
-        df <- df %>% filter(!is.na(bilirubin))
+        df <- df %>% dplyr::filter(!is.na(bilirubin))
         df <- df %>% arrange(annotation,time)
         df <- df %>% 
           group_by(annotation, bilirubin) %>%
-          filter(!duplicated(bilirubin))
-        max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
+          dplyr::filter(!duplicated(bilirubin))
+        max_vals <- df  %>% group_by(annotation)  %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% dplyr::filter(!is.na(annotation))
         df <- rbind(max_vals, df)
         
         if (PML_geboorte < 36 && PML_geboorte >= 35){
-          #df <- df %>% filter(annotation == "35w_risk")
+          #df <- df %>% dplyr::filter(annotation == "35w_risk")
           df$annotation <- sub("35w_risk", "35 weeks", df$annotation)
           highlight <- "35 weeks"
         } else if (PML_geboorte < 37 && PML_geboorte >= 36){
-          #df <- df %>% filter(annotation == "36w_risk")
+          #df <- df %>% dplyr::filter(annotation == "36w_risk")
           df$annotation <- sub("36w_risk", "36 weeks", df$annotation)
           highlight <- "36 weeks"
         } else if (PML_geboorte < 38 && PML_geboorte >= 37){
-          #df <- df %>% filter(annotation == "37w_risk")
+          #df <- df %>% dplyr::filter(annotation == "37w_risk")
           df$annotation <- sub("37w_risk", "37 weeks", df$annotation)
           highlight <- "37 weeks"
         } else if (PML_geboorte >= 38){
-          #df <- df %>% filter(annotation == "38w_risk")
+          #df <- df %>% dplyr::filter(annotation == "38w_risk")
           df$annotation <- sub("38w_risk", ">= 38 weeks", df$annotation)
           highlight <- ">= 38 weeks"          
         }
@@ -845,9 +845,9 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       )
       df_all <- bind_rows(df, df_TcB)
       # extract the most recent entered value to annotate the corresponding thresholds for LR, MR and HR on the plot
-      x_seq = df2 %>% filter(biliwaarde > 0) %>% pull(`tijd in dagen`)
+      x_seq = df2 %>% dplyr::filter(biliwaarde > 0) %>% pull(`tijd in dagen`)
       
-      intersections <- df_all %>% filter(annotation != "sample") %>% filter(annotation == highlight | annotation == "threshold for serum confirmation of TcB if no risk factors") %>%
+      intersections <- df_all %>% dplyr::filter(annotation != "sample") %>% dplyr::filter(annotation == highlight | annotation == "threshold for serum confirmation of TcB if no risk factors") %>%
         group_by(annotation) %>%
         dplyr::reframe(interpolated = approx(x = `tijd in dagen`, y = biliwaarde, xout = x_seq)$y) %>%
         mutate(x_seq = rep(x_seq, 2)) %>%
@@ -895,22 +895,22 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         PT_legend <- NULL
       }
       
-      #if (df %>% filter(annotation == "sample") %>% pull(`tijd in dagen`) %>% max() > 7) {
+      #if (df %>% dplyr::filter(annotation == "sample") %>% pull(`tijd in dagen`) %>% max() > 7) {
       #  highest_xlim <- 14
       #} else{ 
       #  highest_xlim <- 7
       #}
 
-      if (df %>% filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% min() > 6) {
+      if (df %>% dplyr::filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% min() > 6) {
         lowest_ylim <- 6
       } else{ 
-        lowest_ylim <- df %>% filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% min() 
+        lowest_ylim <- df %>% dplyr::filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% min() 
       }
 
-      if (df %>% filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% max() < 22.5) {
+      if (df %>% dplyr::filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% max() < 22.5) {
         highest_ylim <- 22.5
       } else{ 
-        highest_ylim <- df %>% filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% max() 
+        highest_ylim <- df %>% dplyr::filter(annotation == "sample", biliwaarde > 0) %>% pull(`biliwaarde`) %>% max() 
       }      
       
       g <-
@@ -933,15 +933,15 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           nudge_x = 1,
           force = 1
         )  +
-        geom_line(data = df %>% filter(annotation != "sample") %>% filter(annotation == highlight), size = 1)  + 
-        geom_line(data = df %>% filter(annotation != "sample") %>% filter(annotation != highlight), aes(group = annotation, col = annotation), size = 0.5, color = "gray80")  + 
+        geom_line(data = df %>% dplyr::filter(annotation != "sample") %>% dplyr::filter(annotation == highlight), size = 1)  + 
+        geom_line(data = df %>% dplyr::filter(annotation != "sample") %>% dplyr::filter(annotation != highlight), aes(group = annotation, col = annotation), size = 0.5, color = "gray80")  + 
         theme_bw() + xlab("age in days") + ylab("bilirubin, mg/dL") +
         geom_line(data = df_TcB, linetype = "dashed", size = 1) +
         geom_point(
-          data = df %>% filter(annotation == "sample", biliwaarde > 0),
+          data = df %>% dplyr::filter(annotation == "sample", biliwaarde > 0),
           aes(y = biliwaarde, x = `tijd in dagen`, col = annotation),
           size = 3, color = "#5E81AC"
-        ) + geom_line(data = df %>% filter(annotation == "sample", biliwaarde > 0), aes(group = annotation), color = "#5E81AC") + labs(color = "legend", subtitle = paste0(ggplot_text, "\n", "°", df2 %>% pull(geboorte) %>% first()) ) + theme(
+        ) + geom_line(data = df %>% dplyr::filter(annotation == "sample", biliwaarde > 0), aes(group = annotation), color = "#5E81AC") + labs(color = "legend", subtitle = paste0(ggplot_text, "\n", "°", df2 %>% pull(geboorte) %>% first()) ) + theme(
           text = element_text(size = 20),
           legend.position = "bottom",
           legend.direction="vertical",
@@ -953,7 +953,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
                            limits = c(lowest_ylim, highest_ylim)) +
         scale_color_manual(values = c( "#4C566A", "#88C0D0")) +
         theme(plot.subtitle=element_text(size=18)) +
-        geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot + PT_legend
+        geom_point(data = intersections %>% dplyr::filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot + PT_legend
       
       g + guides(color = guide_legend(nrow = 5))
     } else{
@@ -1028,7 +1028,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       alpha = 0.1
       
       ggplot(
-        preterm_df %>% filter(biliwaarde > 0),
+        preterm_df %>% dplyr::filter(biliwaarde > 0),
         aes(x = `postmenstruele leeftijd`, y = biliwaarde)
       ) +
         geom_point(size = 3,

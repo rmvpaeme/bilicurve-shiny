@@ -620,7 +620,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
           mutate(`postmenstrual age` = GA,
                  bili_value = biliprem) %>%
           dplyr::select(`postmenstrual age`, bili_value) %>%
-          filter(bili_value > 0)
+          dplyr::filter(bili_value > 0)
         list(df = preterm_df, df_PT = df_PT)
       }
     }
@@ -692,7 +692,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       }
     }
     
-    df <- df %>% filter(bili_value > 0)
+    df <- df %>% dplyr::filter(bili_value > 0)
     df <- df %>% mutate_if(is.numeric, ~ round(., 2))
     
     df$risk_factors <- input$bili_risk
@@ -738,12 +738,12 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         highlight <- NA
         ggplot_text <- "No Hyperbilirubinemia Neurotoxicity Risk Factors"
         df <- read_tsv("./data/all_norisk.tsv")
-        df <- df %>% filter(!is.na(bilirubin))
+        df <- df %>% dplyr::filter(!is.na(bilirubin))
         df <- df %>% arrange(annotation, time)
         df <- df %>% 
           group_by(annotation) %>%
-          filter(!duplicated(bilirubin))
-        max_vals <- df %>% group_by(annotation) %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
+          dplyr::filter(!duplicated(bilirubin))
+        max_vals <- df %>% group_by(annotation) %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% dplyr::filter(!is.na(annotation))
         df <- rbind(max_vals, df)
         
         if (GA_birth < 36 && GA_birth >= 35) {
@@ -769,12 +769,12 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         highlight <- NA
         ggplot_text <- "One or More Hyperbilirubinemia Neurotoxicity Risk Factors"
         df <- read_tsv("./data/all_risk.tsv")
-        df <- df %>% filter(!is.na(bilirubin))
+        df <- df %>% dplyr::filter(!is.na(bilirubin))
         df <- df %>% arrange(annotation, time)
         df <- df %>% 
           group_by(annotation, bilirubin) %>%
-          filter(!duplicated(bilirubin))
-        max_vals <- df %>% group_by(annotation) %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% filter(!is.na(annotation))
+          dplyr::filter(!duplicated(bilirubin))
+        max_vals <- df %>% group_by(annotation) %>% summarise(bilirubin = max(bilirubin, na.rm = TRUE)) %>% mutate(time = 336) %>% dplyr::filter(!is.na(annotation))
         df <- rbind(max_vals, df)
         
         if (GA_birth < 36 && GA_birth >= 35) {
@@ -802,9 +802,9 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
       bili_value = c(8, 10, 12, 14, 17)
     )
     df_all <- bind_rows(df, df_TcB)
-    x_seq = df2 %>% filter(bili_value > 0) %>% pull(`time in days`)
+    x_seq = df2 %>% dplyr::filter(bili_value > 0) %>% pull(`time in days`)
     
-    intersections <- df_all %>% filter(annotation != "sample") %>% filter(annotation == highlight | annotation == "threshold for serum confirmation of TcB if no risk factors") %>%
+    intersections <- df_all %>% dplyr::filter(annotation != "sample") %>% dplyr::filter(annotation == highlight | annotation == "threshold for serum confirmation of TcB if no risk factors") %>%
       group_by(annotation) %>%
       dplyr::reframe(interpolated = approx(x = `time in days`, y = bili_value, xout = x_seq)$y) %>%
       mutate(x_seq = rep(x_seq, 2)) %>%
@@ -860,15 +860,15 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
         nudge_x = 1,
         force = 1
       )  +
-      geom_line(data = df %>% filter(annotation != "sample") %>% filter(annotation == highlight), size = 1)  + 
-      geom_line(data = df %>% filter(annotation != "sample") %>% filter(annotation != highlight), aes(group = annotation, col = annotation), size = 0.5, color = "gray80")  + 
+      geom_line(data = df %>% dplyr::filter(annotation != "sample") %>% dplyr::filter(annotation == highlight), size = 1)  + 
+      geom_line(data = df %>% dplyr::filter(annotation != "sample") %>% dplyr::filter(annotation != highlight), aes(group = annotation, col = annotation), size = 0.5, color = "gray80")  + 
       theme_bw() + xlab("age in days") + ylab("bilirubin, mg/dL") +
       geom_line(data = df_TcB, linetype = "dashed", size = 1) +
       geom_point(
-        data = df %>% filter(annotation == "sample", bili_value > 0),
+        data = df %>% dplyr::filter(annotation == "sample", bili_value > 0),
         aes(y = bili_value, x = `time in days`, col = annotation),
         size = 3, color = "#5E81AC"
-      ) + geom_line(data = df %>% filter(annotation == "sample", bili_value > 0), aes(group = annotation), color = "#5E81AC") + labs(color = "legend", subtitle = paste0(ggplot_text, "\n", "°", df2 %>% pull(birth) %>% first()) ) + theme(
+      ) + geom_line(data = df %>% dplyr::filter(annotation == "sample", bili_value > 0), aes(group = annotation), color = "#5E81AC") + labs(color = "legend", subtitle = paste0(ggplot_text, "\n", "°", df2 %>% pull(birth) %>% first()) ) + theme(
         text = element_text(size = 20),
         legend.position = "bottom",
         legend.direction="vertical",
@@ -878,7 +878,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
                          limits = c(5, 22.5)) +
       scale_color_manual(values = c( "#4C566A", "#88C0D0")) +
       theme(plot.subtitle=element_text(size=18)) +
-      geom_point(data = intersections %>% filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot + PT_legend
+      geom_point(data = intersections %>% dplyr::filter(x_seq > 0) , aes(x = x_seq, y = interpolated)) + PT_ggplot + PT_legend
     
     g + guides(color = guide_legend(nrow = 5))
   } else{
@@ -901,7 +901,7 @@ server <- function(input, output, session) {options(shiny.usecairo=TRUE)
     alpha = 0.1
     
     ggplot(
-      preterm_df %>% filter(bili_value > 0),
+      preterm_df %>% dplyr::filter(bili_value > 0),
       aes(x = `postmenstrual age`, y = bili_value)
     ) +
       geom_point(size = 3,
