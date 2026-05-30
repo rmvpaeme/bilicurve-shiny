@@ -19,6 +19,8 @@ RUN R -e 'install.packages(c(\
               "tidyverse", \
               "shinyTime", \
               "shinythemes", \
+              "bslib", \
+              "shiny.i18n", \
               "DT", \
               "Cairo", \
               "shinyscreenshot", \
