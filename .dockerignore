@@ -1,0 +1,14 @@
+# Keep build context to the actual app. In particular .git must be excluded:
+# the Dockerfile's `COPY ./*` flattens directory contents into the app root,
+# and a copied .git/description file makes Shiny's loadSupport() fail with
+# "Unnamed repository ... is malformed" -> the app exits during initialization.
+.git
+.gitignore
+.Rproj.user
+.Rhistory
+.RData
+.DS_Store
+tests
+*.psd
+*.Rproj
+Screenshot*.png
