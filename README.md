@@ -1,21 +1,5 @@
 # Bilirubin chart - shiny application
 
-## Changelog
-
-### 1.0.0-beta
-- **Bilingual UI (NL default / EN)** via `shiny.i18n`, with a language toggle button fixed in the top-right corner. All UI text, plot labels and the data table switch live without losing app state.
-- **Dutch interface** cleaned up and made consistent (the previous separate `app_EN.R` has been removed and merged into this single app).
-- **"Maak een keuze" instructions shown by default** so the main panel is never blank; the bilirubin curve appears once a risk-factor choice is made.
-- **UX revision** (Cosmo theme):
-  - Time fields now use a proper time picker (`shinyTime`).
-  - Inputs grouped in cards with helper text and a risk-factor tooltip.
-  - Friendly empty-state message when no bilirubin value has been entered yet.
-  - The instruction image was replaced with real (translatable) text; the disclaimer moved into a collapsible accordion; a subtitle was added.
-  - Redundant "Error" tabs removed.
-  - A consistent stroke and extra breathing room around every plot.
-- **Fixes:** corrected the output-panel visibility condition (removed a `NA is not defined` JS error) and moved GET-parameter parsing to load time so `?advanced=…` and the other URL parameters work again regardless of which tab is visible.
-- **Tests:** added `tests/test_get_params.R` covering the documented GET-parameter scenarios.
-
 The graph depends on the gestational age (> or < 35 weeks):
 
 ## Bilirubin chart for term infants (> 35 weeks)
@@ -74,6 +58,22 @@ or
 ```
 server-ip:3838
 ```
+
+## Changelog
+
+### 1.0.0-beta
+- **Bilingual UI (NL default / EN)** via `shiny.i18n`, with a language toggle button fixed in the top-right corner. All UI text, plot labels and the data table switch live without losing app state.
+- **Dutch interface** cleaned up and made consistent (the previous separate `app_EN.R` has been removed and merged into this single app).
+- **"Maak een keuze" instructions shown by default** so the main panel is never blank; the bilirubin curve appears once a risk-factor choice is made.
+- **UX revision** (Cosmo theme):
+  - Time fields now use a proper time picker (`shinyTime`).
+  - Inputs grouped in cards with helper text and a risk-factor tooltip.
+  - Friendly empty-state message when no bilirubin value has been entered yet.
+  - The instruction image was replaced with real (translatable) text; the disclaimer moved into a collapsible accordion; a subtitle was added.
+  - Redundant "Error" tabs removed.
+  - A consistent stroke and extra breathing room around every plot.
+- **Fixes:** corrected the output-panel visibility condition (removed a `NA is not defined` JS error) and moved GET-parameter parsing to load time so `?advanced=…` and the other URL parameters work again regardless of which tab is visible.
+- **Tests:** added `tests/test_get_params.R` covering the documented GET-parameter scenarios.
 
 ## References
 The data is obtained from:
