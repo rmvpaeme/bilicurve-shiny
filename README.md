@@ -41,6 +41,10 @@ Examples:
 
 The application can be reached at [https://bili.ugent.be/](https://bili.ugent.be/) or [https://rubenvp.shinyapps.io/bilicurve](https://rubenvp.shinyapps.io/bilicurve) or can be self-hosted.
 
+### Requirements
+
+When running the app locally (not via the Docker image), **`bslib` ≥ 0.6.0** is required — the UI uses `bslib::tooltip()`, which was introduced in bslib 0.6.0. Older versions fail with `could not find function "tooltip"`. Update with `install.packages("bslib")`.
+
 Selfhosting of the shiny application is possible through Docker:
 
 ```bash

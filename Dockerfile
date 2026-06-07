@@ -2,7 +2,7 @@
 # https://blog.sellorm.com/2021/04/25/shiny-app-in-docker/
 
 # get shiny server and R from the rocker project
-FROM rocker/shiny:4.3.0
+FROM rocker/shiny:4.4.2
 
 # system libraries
 # Try to only install system libraries you actually need
@@ -26,7 +26,7 @@ RUN R -e 'install.packages(c(\
               "shinyscreenshot", \
               "ggrepel" \
             ), \
-            repos="https://packagemanager.rstudio.com/cran/__linux__/focal/2023-12-04"\
+            repos="https://packagemanager.posit.co/cran/__linux__/noble/2024-12-01"\
           )'
 
 
